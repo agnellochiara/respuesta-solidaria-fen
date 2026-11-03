@@ -206,9 +206,9 @@ table.mem th{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;colo
 <div class="wrap">
   <header class="top">
     <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
-      <span class="eyebrow">Grupo Intercorp · Fenómeno El Niño 2026–27</span>
-      <h1>Respuesta Solidaria FEN</h1>
-      <span class="muted">Aportes de las empresas del grupo a la respuesta humanitaria, actualizados por cada empresa.</span>
+      <span class="eyebrow" id="txt_linea_superior">Grupo Intercorp · Fenómeno El Niño 2026–27</span>
+      <h1 id="txt_titulo">Respuesta Solidaria FEN</h1>
+      <span class="muted" id="txt_descripcion">Aportes de las empresas del grupo a la respuesta humanitaria, actualizados por cada empresa.</span>
     </div>
     <div class="who">
       <span id="who" class="chip">Conectando…</span>
@@ -283,7 +283,7 @@ table.mem th{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;colo
     <div class="gallery" id="gallery"></div>
   </section>
 
-  <p class="src">Fuente: reportes de avance de cada empresa (base inicial importada del Excel “Avances Respuesta Solidaria FEN – Intercorp”, 2 nov 2026). Valorizado = monto invertido o valor de lo donado en soles. Beneficiarios = beneficiarios directos reportados.</p>
+  <p class="src" id="txt_nota_fuente">Fuente: reportes de avance de cada empresa (base inicial importada del Excel “Avances Respuesta Solidaria FEN – Intercorp”, 2 nov 2026). Valorizado = monto invertido o valor de lo donado en soles. Beneficiarios = beneficiarios directos reportados.</p>
 </div>
 
 <dialog id="dlg"><form class="mod" id="frm" novalidate></form></dialog>
@@ -330,6 +330,23 @@ const toDb = d => ({ empresa:d.empresa, nombre:d.nombre, descripcion:d.descripci
   estado:d.estado, responsable:d.responsable||null, comentarios:d.comentarios||null, fotos:d.fotos||[] });
 
 const isAdmin = () => !!S.perfil?.es_admin;
+const TEXTOS=[["linea_superior","Línea superior (pequeña, sobre el título)",80],["titulo","Título",80],["descripcion","Descripción",240],["nota_fuente","Nota de fuente (al pie del tablero)",600]];
+async function loadTextos(){ if(!S.sb) return; const { data, error }=await S.sb.from("configuracion").select("clave,valor"); S.txtOk=!error; if(error) return; S.textos=Object.fromEntries(data.map(d=>[d.clave,d.valor])); applyTextos(); }
+function applyTextos(){ if(!S.textos) return; for(const [k] of TEXTOS){ const el=document.getElementById("txt_"+k); const v=S.textos[k]; if(el && v!=null && el.textContent!==v){ el.textContent=v; el.hidden=!v; } } if(S.textos.titulo) document.title=S.textos.titulo; }
+function renderTextosAdmin(){
+  if(S.txtOk===false) return `<div><h3>Textos del tablero</h3><p class="err">Falta ejecutar <code>supabase/05_textos.sql</code> en Supabase para editar los textos.</p></div>`;
+  const t=S.textos||{};
+  return `<div style="display:flex;flex-direction:column;gap:10px"><h3>Textos del tablero</h3>
+    <div class="mod-b" style="padding:0;overflow:visible">${TEXTOS.map(([k,l,max])=>`<div class="field${k==="nota_fuente"||k==="descripcion"?" full":""}"><label for="cfg_${k}">${l}</label>${max>100?`<textarea id="cfg_${k}" maxlength="${max}" rows="${k==="nota_fuente"?3:2}">${esc(t[k]??"")}</textarea>`:`<input id="cfg_${k}" maxlength="${max}" value="${esc(t[k]??"")}">`}</div>`).join("")}</div>
+    <div><button class="btn primary" id="cfgSave">Guardar textos</button> <span class="muted small">Se actualizan al instante para todas las personas que tengan el tablero abierto.</span></div></div>`;
+}
+function wireTextosAdmin(p){
+  const b=p.querySelector("#cfgSave"); if(!b) return;
+  b.onclick=async()=>{ const rows=TEXTOS.map(([k])=>({clave:k,valor:p.querySelector("#cfg_"+k).value.trim()}));
+    if(!rows.find(r=>r.clave==="titulo").valor){ toast("El título no puede quedar vacío."); return; }
+    b.disabled=true; const { error }=await S.sb.from("configuracion").upsert(rows,{onConflict:"clave"});
+    b.disabled=false; if(error) toast(errMsg(error)); else { S.textos=Object.fromEntries(rows.map(r=>[r.clave,r.valor])); applyTextos(); toast("Textos guardados"); } };
+}
 function listaEmp(){ const l = S.empresasDb ? S.empresasDb.filter(e=>e.activa).map(e=>e.nombre) : EMPRESAS.filter(e=>e!=="Otro"); return [...l].sort((a,b)=>a.localeCompare(b,"es")); }
 async function loadEmpresas(){ if(!S.sb) return; const { data, error }=await S.sb.from("empresas").select("*"); S.empresasDb = error ? null : data; S.empOk=!error; }
 const myEmpresa = () => S.perfil?.empresa || null;
@@ -350,7 +367,7 @@ async function loadPerfil(){
   S.perfil=data||null;
   if(isAdmin()){ const [r,i]=await Promise.all([S.sb.from("perfiles").select("*").order("creado",{ascending:false}), S.sb.from("invitaciones").select("*").order("creado",{ascending:false})]); S.perfiles=r.data||[]; S.invit=i.data||[]; S.invitOk=!i.error; }
 }
-let reT; function reload(){ clearTimeout(reT); reT=setTimeout(async()=>{ await Promise.all([loadPerfil(),loadEmpresas()]); await loadRows(); },400); }
+let reT; function reload(){ clearTimeout(reT); reT=setTimeout(async()=>{ await Promise.all([loadPerfil(),loadEmpresas(),loadTextos()]); await loadRows(); },400); }
 
 function matches(r, skip){
   const f=S.f;
@@ -572,7 +589,7 @@ function renderAdmin(){
   const p=$("#adminPanel");
   if(!isAdmin()){ p.hidden=true; return; }
   p.hidden=false; p.className="panel";
-  const keep={}; ["empNew","invEmail","invBulk","invEmp"].forEach(id=>{ const el=document.getElementById(id); if(el) keep[id]=el.value; });
+  const keep={}; ["empNew","invEmail","invBulk","invEmp","cfg_linea_superior","cfg_titulo","cfg_descripcion","cfg_nota_fuente"].forEach(id=>{ const el=document.getElementById(id); if(el) keep[id]=el.value; });
   const openDet=!!p.querySelector("details[open]");
   const byEmail=new Map(S.perfiles.map(u=>[String(u.email||"").toLowerCase(),u]));
   const pend=S.perfiles.filter(u=>u.empresa_solicitada && u.empresa!==u.empresa_solicitada && !u.es_admin);
@@ -581,6 +598,7 @@ function renderAdmin(){
   const sel=(id,v,attr="data-u")=>`<select ${attr}="${esc(id)}" class="btn" style="font-weight:500">${listaEmp().concat(v&&!listaEmp().includes(v)?[v]:[]).map(e=>`<option${e===v?" selected":""}>${esc(e)}</option>`).join("")}</select>`;
   p.innerHTML=`<div class="panel-h"><div><h2>Accesos de empresas</h2><span class="muted small">Solo coordinación ve este panel. ${mem.length} persona${mem.length===1?"":"s"} con acceso · ${invPend.length} invitación${invPend.length===1?"":"es"} sin usar · ${pend.length} solicitud${pend.length===1?"":"es"} pendiente${pend.length===1?"":"s"}</span></div><button class="btn ghost" id="admToggle">${S._admOpen?"Ocultar":"Mostrar"}</button></div>
   <div ${S._admOpen?"":"hidden"} style="display:flex;flex-direction:column;gap:18px">
+    ${renderTextosAdmin()}
     ${renderEmpresasAdmin()}
     <div style="display:flex;flex-direction:column;gap:10px">
       <h3>Invitar responsables</h3>
@@ -605,7 +623,7 @@ function renderAdmin(){
   Object.entries(keep).forEach(([id,v])=>{ const el=document.getElementById(id); if(el && v) el.value=v; });
   if(openDet){ const d=p.querySelector("details"); if(d) d.open=true; }
   $("#admToggle").onclick=()=>{ S._admOpen=!S._admOpen; renderAdmin(); };
-  wireEmpresasAdmin(p);
+  wireEmpresasAdmin(p); wireTextosAdmin(p);
   const addInv=async list=>{ const { error }=await S.sb.from("invitaciones").upsert(list,{onConflict:"email"}); if(error){ toast(errMsg(error)); return false; } return true; };
   $("#invAdd").onclick=async()=>{ const email=$("#invEmail").value.trim().toLowerCase(), empresa=$("#invEmp").value;
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ toast("Escribe un correo válido."); return; }
@@ -748,9 +766,9 @@ applyTheme(); render();
   if(!CFG.supabaseUrl || !CFG.supabaseAnonKey || !window.supabase){ S.demo=true; return loadRows(); }
   S.sb=window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey);
   const { data:{ session } }=await S.sb.auth.getSession(); S.session=session;
-  await Promise.all([loadPerfil(),loadEmpresas()]); await loadRows();
+  await Promise.all([loadPerfil(),loadEmpresas(),loadTextos()]); await loadRows();
   S.sb.auth.onAuthStateChange((ev,sess)=>{ const changed=(sess?.user?.id||null)!==(S.session?.user?.id||null); S.session=sess; if(changed){ if(location.hash.includes("access_token")) history.replaceState(null,"",location.pathname); reload(); } });
-  S.sb.channel("fen").on("postgres_changes",{event:"*",schema:"public",table:"iniciativas"},reload).on("postgres_changes",{event:"*",schema:"public",table:"perfiles"},reload).on("postgres_changes",{event:"*",schema:"public",table:"empresas"},reload).subscribe();
+  S.sb.channel("fen").on("postgres_changes",{event:"*",schema:"public",table:"iniciativas"},reload).on("postgres_changes",{event:"*",schema:"public",table:"perfiles"},reload).on("postgres_changes",{event:"*",schema:"public",table:"empresas"},reload).on("postgres_changes",{event:"*",schema:"public",table:"configuracion"},()=>loadTextos()).subscribe();
 })();
 </script>
 </body>

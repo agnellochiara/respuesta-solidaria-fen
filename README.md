@@ -17,6 +17,7 @@ Los permisos se aplican en la base de datos (Row Level Security de Supabase), no
 | `supabase/01_esquema.sql` | Tablas, reglas de permisos y almacenamiento de fotos |
 | `supabase/03_invitaciones.sql` | Invitaciones: correos pre-aprobados con su empresa |
 | `supabase/04_empresas.sql` | Lista de empresas del grupo, administrable desde el tablero |
+| `supabase/05_textos.sql` | Título, descripción y nota de fuente, editables desde el tablero |
 | `02_datos_iniciales.sql` (no está en el repo) | Las 23 iniciativas del Excel; se guarda fuera del repo porque incluye nombres de responsables |
 | `datos-demo.json` | Datos de muestra que se ven mientras no hay conexión configurada |
 
@@ -52,6 +53,8 @@ En el repositorio: **Settings → Pages → Build and deployment → Source: Dep
 3. Recarga el tablero: verás el panel **Accesos de empresas**.
 
 ## Uso diario
+**Textos del tablero:** en **Accesos de empresas → Textos del tablero** cambia título, descripción y nota de fuente.
+
 **Empresas del grupo:** en **Accesos de empresas → Empresas del grupo** agrega, oculta o elimina empresas. Solo las visibles aparecen en los formularios.
 
 **Invitar por adelantado (recomendado):** en **Accesos de empresas → Invitar responsables**, registra correo y empresa (uno a uno o pegando una lista `correo, empresa`). Luego pulsa **Copiar mensaje de invitación** y envíalo por correo o WhatsApp. Al ingresar con ese correo, la persona ya tiene acceso aprobado.
