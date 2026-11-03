@@ -303,7 +303,7 @@ const TIPOS = ["Donación en especie","Donación monetaria y/o cash card","Sensi
 const PUB_COLS = "id,empresa,nombre,descripcion,aliado,region,zona,tipo,beneficiarios,monto,cantidad,unidad,fecha_inicio,fecha_culminacion,estado,comentarios,fotos,creado,actualizado";
 
 const CFG = window.FEN_CONFIG || {};
-const S = { sb:null, demo:false, session:null, perfil:null, perfiles:[], rows:[], loaded:false, err:null,
+const S = { sb:null, demo:false, session:null, perfil:null, perfiles:[], invit:[], rows:[], loaded:false, err:null,
   f:{empresa:"",region:"",estado:"",tipo:"",aliado:"",q:"",mine:false}, metric:"monto", sort:"act", theme:"light" };
 
 const $ = s => document.querySelector(s);
@@ -342,11 +342,11 @@ async function loadRows(){
   S.loaded=true; render();
 }
 async function loadPerfil(){
-  S.perfil=null; S.perfiles=[];
+  S.perfil=null; S.perfiles=[]; S.invit=[];
   if(!S.session) return;
   const { data } = await S.sb.from("perfiles").select("*").eq("id",S.session.user.id).maybeSingle();
   S.perfil=data||null;
-  if(isAdmin()){ const r=await S.sb.from("perfiles").select("*").order("creado",{ascending:false}); S.perfiles=r.data||[]; }
+  if(isAdmin()){ const [r,i]=await Promise.all([S.sb.from("perfiles").select("*").order("creado",{ascending:false}), S.sb.from("invitaciones").select("*").order("creado",{ascending:false})]); S.perfiles=r.data||[]; S.invit=i.data||[]; S.invitOk=!i.error; }
 }
 let reT; function reload(){ clearTimeout(reT); reT=setTimeout(async()=>{ await loadPerfil(); await loadRows(); },400); }
 
@@ -526,22 +526,67 @@ function renderBanner(){
     const { error }=await S.sb.from("perfiles").update({empresa_solicitada:$("#reqEmp").value}).eq("id",S.session.user.id);
     if(error){ $("#reqGo").disabled=false; toast(errMsg(error)); } else { S._reqEdit=false; toast("Solicitud enviada a coordinación"); reload(); } };
 }
+const SITE = location.origin + location.pathname;
+function mensajeInvitacion(){
+  return `Hola, te comparto el tablero de la Respuesta Solidaria frente al Fenómeno El Niño del Grupo Intercorp:\n${SITE}\n\nPara registrar y actualizar las iniciativas de tu empresa:\n1. Abre el enlace y pulsa "Ingresar".\n2. Escribe tu correo corporativo (este mismo al que te llega este mensaje) y abre el enlace que recibirás. No necesitas contraseña.\n3. Ya tienes acceso aprobado: verás el botón "+ Nueva iniciativa" y podrás editar, marcar como culminadas y subir fotos de las iniciativas de tu empresa.\n\nCualquier duda, me escribes. ¡Gracias por sumarte!`;
+}
+function parseInvites(txt){
+  const out=[], bad=[];
+  for(const line of txt.split(/\n+/).map(l=>l.trim()).filter(Boolean)){
+    const m=line.match(/([^\s,;<>]+@[^\s,;<>]+\.[^\s,;<>]+)/); if(!m){ bad.push(line); continue; }
+    const email=m[1].toLowerCase(); const rest=line.replace(m[0],"").replace(/^[\s,;\t]+|[\s,;\t]+$/g,"").trim();
+    const emp=EMPRESAS.find(e=>e.toLowerCase()===rest.toLowerCase()) || EMPRESAS.find(e=>rest && e.toLowerCase().includes(rest.toLowerCase()));
+    if(!emp){ bad.push(line); continue; } out.push({email,empresa:emp});
+  }
+  return {out,bad};
+}
 function renderAdmin(){
   const p=$("#adminPanel");
   if(!isAdmin()){ p.hidden=true; return; }
   p.hidden=false; p.className="panel";
+  const byEmail=new Map(S.perfiles.map(u=>[String(u.email||"").toLowerCase(),u]));
   const pend=S.perfiles.filter(u=>u.empresa_solicitada && u.empresa!==u.empresa_solicitada && !u.es_admin);
   const mem=S.perfiles.filter(u=>u.empresa && !u.es_admin);
-  const sel=(id,v)=>`<select data-u="${esc(id)}" class="btn" style="font-weight:500">${EMPRESAS.map(e=>`<option${e===v?" selected":""}>${esc(e)}</option>`).join("")}</select>`;
-  p.innerHTML=`<div class="panel-h"><div><h2>Accesos de empresas</h2><span class="muted small">Solo coordinación ve este panel. Cada persona aprobada puede crear y editar las iniciativas de su empresa.</span></div><button class="btn ghost" id="admToggle">${S._admOpen?"Ocultar":"Mostrar"} (${pend.length} pendiente${pend.length===1?"":"s"})</button></div>
-  <div ${S._admOpen?"":"hidden"} class="scroll-x">
-    ${pend.length?`<h3>Solicitudes pendientes</h3><table class="mem"><tr><th>Correo</th><th>Empresa solicitada</th><th></th></tr>${pend.map(u=>`<tr><td>${esc(u.email)}</td><td>${sel(u.id,u.empresa_solicitada)}</td><td><button class="btn primary" data-ok="${esc(u.id)}">Aprobar</button></td></tr>`).join("")}</table>`:`<p class="muted">No hay solicitudes pendientes. Comparte el enlace con cada responsable y pídeles que ingresen con su correo y soliciten acceso.</p>`}
-    ${mem.length?`<h3 style="margin-top:12px">Personas aprobadas</h3><table class="mem"><tr><th>Correo</th><th>Empresa</th><th></th></tr>${mem.map(u=>`<tr><td>${esc(u.email)}</td><td>${esc(u.empresa)}</td><td><button class="btn danger" data-rev="${esc(u.id)}">Quitar acceso</button></td></tr>`).join("")}</table>`:""}
+  const invPend=S.invit.filter(i=>!byEmail.has(i.email));
+  const sel=(id,v,attr="data-u")=>`<select ${attr}="${esc(id)}" class="btn" style="font-weight:500">${EMPRESAS.map(e=>`<option${e===v?" selected":""}>${esc(e)}</option>`).join("")}</select>`;
+  p.innerHTML=`<div class="panel-h"><div><h2>Accesos de empresas</h2><span class="muted small">Solo coordinación ve este panel. ${mem.length} persona${mem.length===1?"":"s"} con acceso · ${invPend.length} invitación${invPend.length===1?"":"es"} sin usar · ${pend.length} solicitud${pend.length===1?"":"es"} pendiente${pend.length===1?"":"s"}</span></div><button class="btn ghost" id="admToggle">${S._admOpen?"Ocultar":"Mostrar"}</button></div>
+  <div ${S._admOpen?"":"hidden"} style="display:flex;flex-direction:column;gap:18px">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <h3>Invitar responsables</h3>
+      ${S.invitOk===false?`<p class="err">Falta ejecutar <code>supabase/03_invitaciones.sql</code> en Supabase para activar las invitaciones.</p>`:""}
+      <p class="muted small" style="margin:0">Registra el correo y la empresa de cada responsable. Cuando ingresen con ese correo ya tendrán acceso aprobado, sin solicitarlo.</p>
+      <div class="filters" style="grid-template-columns:minmax(0,2fr) minmax(0,1.5fr) auto">
+        <div class="field"><label for="invEmail">Correo</label><input id="invEmail" type="email" placeholder="nombre@empresa.com.pe"></div>
+        <div class="field"><label for="invEmp">Empresa</label>${sel("x","","id=\"invEmp\" data-x")}</div>
+        <button class="btn primary" id="invAdd" style="align-self:end">Agregar</button>
+      </div>
+      <details><summary class="small" style="cursor:pointer;font-weight:600">Agregar varios a la vez</summary>
+        <div class="field" style="margin-top:8px"><label for="invBulk">Un responsable por línea: correo, empresa</label>
+        <textarea id="invBulk" rows="5" placeholder="maria.perez@interbank.pe, Interbank&#10;jose.rios@promart.pe, Promart"></textarea></div>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap"><button class="btn primary" id="invBulkGo">Agregar todos</button><span class="small err" id="invBulkMsg"></span></div>
+      </details>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button class="btn" id="invCopy">Copiar mensaje de invitación</button><span class="muted small">Envíalo por correo o WhatsApp a las personas invitadas.</span></div>
+      ${S.invit.length?`<div class="scroll-x"><table class="mem"><tr><th>Correo</th><th>Empresa</th><th>Estado</th><th></th></tr>${S.invit.map(i=>`<tr><td>${esc(i.email)}</td><td>${esc(i.empresa)}</td><td>${byEmail.has(i.email)?'<span class="pill st-Culminado">Ya ingresó</span>':'<span class="pill st-Planificado">Aún no ingresa</span>'}</td><td><button class="btn danger" data-invdel="${esc(i.email)}">Quitar</button></td></tr>`).join("")}</table></div>`:""}
+    </div>
+    ${pend.length?`<div class="scroll-x"><h3>Solicitudes pendientes</h3><table class="mem"><tr><th>Correo</th><th>Empresa solicitada</th><th></th></tr>${pend.map(u=>`<tr><td>${esc(u.email)}</td><td>${sel(u.id,u.empresa_solicitada)}</td><td><button class="btn primary" data-ok="${esc(u.id)}">Aprobar</button></td></tr>`).join("")}</table></div>`:""}
+    ${mem.length?`<div class="scroll-x"><h3>Personas con acceso</h3><table class="mem"><tr><th>Correo</th><th>Empresa</th><th></th></tr>${mem.map(u=>`<tr><td>${esc(u.email)}</td><td>${esc(u.empresa)}</td><td><button class="btn danger" data-rev="${esc(u.id)}" data-em="${esc(String(u.email||"").toLowerCase())}">Quitar acceso</button></td></tr>`).join("")}</table></div>`:""}
   </div>`;
   $("#admToggle").onclick=()=>{ S._admOpen=!S._admOpen; renderAdmin(); };
+  const addInv=async list=>{ const { error }=await S.sb.from("invitaciones").upsert(list,{onConflict:"email"}); if(error){ toast(errMsg(error)); return false; } return true; };
+  $("#invAdd").onclick=async()=>{ const email=$("#invEmail").value.trim().toLowerCase(), empresa=$("#invEmp").value;
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ toast("Escribe un correo válido."); return; }
+    $("#invAdd").disabled=true; if(await addInv([{email,empresa}])){ toast(`${email} invitado como ${empresa}`); S._admOpen=true; reload(); } else $("#invAdd").disabled=false; };
+  $("#invBulkGo").onclick=async()=>{ const {out,bad}=parseInvites($("#invBulk").value);
+    if(!out.length){ $("#invBulkMsg").textContent=bad.length?`No reconocí: ${bad.slice(0,3).join(" · ")}`:"Pega al menos una línea."; return; }
+    $("#invBulkGo").disabled=true; if(await addInv(out)){ toast(`${out.length} invitacion${out.length===1?"":"es"} agregada${out.length===1?"":"s"}`); S._admOpen=true; reload(); }
+    $("#invBulkMsg").textContent=bad.length?`No se agregaron (revisa correo o nombre de empresa): ${bad.join(" · ")}`:""; $("#invBulkGo").disabled=false; };
+  $("#invCopy").onclick=async()=>{ const t=mensajeInvitacion(); try{ await navigator.clipboard.writeText(t); toast("Mensaje copiado"); }catch(e){ const ta=document.createElement("textarea"); ta.value=t; document.body.appendChild(ta); ta.select(); try{ document.execCommand("copy"); toast("Mensaje copiado"); }catch(_){} ta.remove(); } };
+  p.querySelectorAll("[data-invdel]").forEach(b=>b.onclick=async()=>{ if(b.dataset.c!=="1"){ b.dataset.c="1"; b.textContent="Confirmar"; return; } b.disabled=true;
+    const { error }=await S.sb.from("invitaciones").delete().eq("email",b.dataset.invdel); if(error){ b.disabled=false; toast(errMsg(error)); } else { toast("Invitación quitada"); reload(); } });
   p.querySelectorAll("[data-ok]").forEach(b=>b.onclick=async()=>{ const id=b.dataset.ok; const emp=p.querySelector(`select[data-u="${CSS.escape(id)}"]`).value; b.disabled=true;
     const { error }=await S.sb.from("perfiles").update({empresa:emp}).eq("id",id); if(error){ b.disabled=false; toast(errMsg(error)); } else { toast("Acceso aprobado"); reload(); } });
   p.querySelectorAll("[data-rev]").forEach(b=>b.onclick=async()=>{ if(b.dataset.c!=="1"){ b.dataset.c="1"; b.textContent="Confirmar"; return; } b.disabled=true;
+    if(b.dataset.em) await S.sb.from("invitaciones").delete().eq("email",b.dataset.em);
     const { error }=await S.sb.from("perfiles").update({empresa:null}).eq("id",b.dataset.rev); if(error){ b.disabled=false; toast(errMsg(error)); } else { toast("Acceso retirado"); reload(); } });
 }
 function openAuth(){

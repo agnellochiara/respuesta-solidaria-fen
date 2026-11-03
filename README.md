@@ -15,6 +15,7 @@ Los permisos se aplican en la base de datos (Row Level Security de Supabase), no
 | `index.html` | El tablero completo |
 | `config.js` | URL y clave pública de Supabase (se completa en el paso 3) |
 | `supabase/01_esquema.sql` | Tablas, reglas de permisos y almacenamiento de fotos |
+| `supabase/03_invitaciones.sql` | Invitaciones: correos pre-aprobados con su empresa |
 | `02_datos_iniciales.sql` (no está en el repo) | Las 23 iniciativas del Excel; se guarda fuera del repo porque incluye nombres de responsables |
 | `datos-demo.json` | Datos de muestra que se ven mientras no hay conexión configurada |
 
@@ -50,9 +51,11 @@ En el repositorio: **Settings → Pages → Build and deployment → Source: Dep
 3. Recarga el tablero: verás el panel **Accesos de empresas**.
 
 ## Uso diario
-1. Comparte el enlace con los responsables de cada empresa.
-2. Ellos pulsan **Ingresar**, abren el enlace que les llega al correo y eligen su empresa en **Solicitar acceso**.
-3. Tú los apruebas en **Accesos de empresas**. Desde ese momento pueden registrar, editar, marcar como culminadas y subir fotos de las iniciativas de su empresa.
+**Invitar por adelantado (recomendado):** en **Accesos de empresas → Invitar responsables**, registra correo y empresa (uno a uno o pegando una lista `correo, empresa`). Luego pulsa **Copiar mensaje de invitación** y envíalo por correo o WhatsApp. Al ingresar con ese correo, la persona ya tiene acceso aprobado.
+
+**Por solicitud:** si alguien no invitado ingresa, elige su empresa en **Solicitar acceso** y tú lo apruebas en el mismo panel.
+
+Con acceso aprobado, cada persona registra, edita, marca como culminadas y sube fotos de las iniciativas de su empresa.
 
 ## Notas
 - **Correos de ingreso:** el plan gratuito de Supabase envía pocos correos por hora (pensado para pruebas). Si muchas personas van a ingresar el mismo día, configura un servidor de correo propio en **Authentication → Emails → SMTP Settings** (por ejemplo, Resend o el SMTP corporativo).
