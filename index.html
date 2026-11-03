@@ -215,6 +215,7 @@ table.mem th{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;colo
       <button class="btn" id="btnTheme" aria-pressed="false">Modo nocturno</button>
       <button class="btn" id="btnCsv">Descargar CSV</button>
       <button class="btn" id="btnLogin" hidden>Ingresar</button>
+      <button class="btn ghost" id="btnPass" hidden>Cambiar contraseña</button>
       <button class="btn ghost" id="btnLogout" hidden>Salir</button>
       <button class="btn primary" id="btnNew" hidden>+ Nueva iniciativa</button>
     </div>
@@ -528,7 +529,7 @@ function renderWho(){
   w.className="chip "+cls; w.textContent=label;
   $("#btnNew").hidden=!(isAdmin()||me);
   $("#btnLogin").hidden=S.demo||!!S.session;
-  $("#btnLogout").hidden=!S.session;
+  $("#btnLogout").hidden=!S.session; $("#btnPass").hidden=!S.session;
   renderBanner();
 }
 function renderBanner(){
@@ -547,7 +548,7 @@ function renderBanner(){
 }
 const SITE = location.origin + location.pathname;
 function mensajeInvitacion(){
-  return `Hola, te comparto el tablero de la Respuesta Solidaria frente al Fenómeno El Niño del Grupo Intercorp:\n${SITE}\n\nPara registrar y actualizar las iniciativas de tu empresa:\n1. Abre el enlace y pulsa "Ingresar".\n2. Escribe tu correo corporativo (este mismo al que te llega este mensaje) y abre el enlace que recibirás. No necesitas contraseña.\n3. Ya tienes acceso aprobado: verás el botón "+ Nueva iniciativa" y podrás editar, marcar como culminadas y subir fotos de las iniciativas de tu empresa.\n\nCualquier duda, me escribes. ¡Gracias por sumarte!`;
+  return `Hola, te comparto el tablero de la Respuesta Solidaria frente al Fenómeno El Niño del Grupo Intercorp:\n${SITE}\n\nPara registrar y actualizar las iniciativas de tu empresa:\n1. Abre el enlace y pulsa "Ingresar".\n2. La primera vez pulsa "¿Primera vez? Crea tu cuenta", usa tu correo corporativo (este mismo al que te llega este mensaje) y elige una contraseña. Confirma tu correo con el enlace que te llegará (solo esta vez).\n3. Desde entonces ingresas con tu correo y contraseña. Ya tienes acceso aprobado: verás el botón "+ Nueva iniciativa" y podrás editar, marcar como culminadas y subir fotos de las iniciativas de tu empresa.\n\nCualquier duda, me escribes. ¡Gracias por sumarte!`;
 }
 function parseInvites(txt){
   const out=[], bad=[];
@@ -641,21 +642,47 @@ function renderAdmin(){
     if(b.dataset.em) await S.sb.from("invitaciones").delete().eq("email",b.dataset.em);
     const { error }=await S.sb.from("perfiles").update({empresa:null}).eq("id",b.dataset.rev); if(error){ b.disabled=false; toast(errMsg(error)); } else { toast("Acceso retirado"); reload(); } });
 }
-function openAuth(){
+function authErr(e){ const m=String(e?.message||""); if(/invalid login/i.test(m)) return "Correo o contraseña incorrectos."; if(/not confirmed/i.test(m)) return "Aún no confirmas tu correo. Abre el correo de confirmación que te enviamos al crear la cuenta (revisa spam)."; if(/already registered|already exists/i.test(m)) return "Ese correo ya tiene cuenta. Usa “Ingresar” o “¿Olvidaste tu contraseña?”."; if(/at least|password should/i.test(m)) return "La contraseña debe tener al menos 8 caracteres."; if(/rate limit|too many/i.test(m)) return "Demasiados intentos. Espera unos minutos y vuelve a probar."; return "No se pudo completar: "+esc(m); }
+function openAuth(mode="login"){
   const d=$("#auth");
-  d.innerHTML=`<form class="mod" id="authF"><div class="mod-h"><h2>Ingresar</h2><button type="button" class="btn ghost" id="ax" aria-label="Cerrar">✕</button></div>
-    <div class="authbox"><p class="muted" style="margin:0">Escribe tu correo. Te enviaremos un enlace para ingresar, sin contraseña. Ábrelo en este mismo navegador.</p>
-    <div class="field"><label for="aEmail">Correo</label><input id="aEmail" type="email" required autocomplete="email" placeholder="nombre@empresa.com.pe"></div>
-    <div id="aMsg"></div></div>
-    <div class="mod-f"><span></span><button type="submit" class="btn primary" id="aGo">Enviar enlace</button></div></form>`;
+  const titles={login:"Ingresar",signup:"Crear cuenta",reset:"Recuperar contraseña",newpass:"Nueva contraseña"};
+  const pw=(id,lab,ac)=>`<div class="field"><label for="${id}">${lab}</label><input id="${id}" type="password" minlength="8" required autocomplete="${ac}"></div>`;
+  const email=`<div class="field"><label for="aEmail">Correo</label><input id="aEmail" type="email" required autocomplete="email" placeholder="nombre@empresa.com.pe"></div>`;
+  const body={
+    login: `${email}${pw("aPass","Contraseña","current-password")}
+      <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap" class="small"><a href="#" data-mode="reset">¿Olvidaste tu contraseña?</a><a href="#" data-mode="signup">¿Primera vez? Crea tu cuenta</a></div>`,
+    signup:`<p class="muted" style="margin:0">Usa tu correo corporativo. Te enviaremos un correo para confirmarlo <b>una sola vez</b>; después siempre ingresas con tu contraseña.</p>${email}${pw("aPass","Contraseña (mínimo 8 caracteres)","new-password")}${pw("aPass2","Repite la contraseña","new-password")}
+      <div class="small"><a href="#" data-mode="login">Ya tengo cuenta</a></div>`,
+    reset: `<p class="muted" style="margin:0">Escribe tu correo y te enviaremos un enlace para crear una contraseña nueva.</p>${email}<div class="small"><a href="#" data-mode="login">Volver a ingresar</a></div>`,
+    newpass:`<p class="muted" style="margin:0">Escribe tu nueva contraseña.</p>${pw("aPass","Nueva contraseña (mínimo 8 caracteres)","new-password")}${pw("aPass2","Repite la contraseña","new-password")}`
+  }[mode];
+  const btn={login:"Ingresar",signup:"Crear cuenta",reset:"Enviar enlace",newpass:"Guardar contraseña"}[mode];
+  d.innerHTML=`<form class="mod" id="authF" novalidate><div class="mod-h"><h2>${titles[mode]}</h2><button type="button" class="btn ghost" id="ax" aria-label="Cerrar">✕</button></div>
+    <div class="authbox">${body}<div id="aMsg"></div></div>
+    <div class="mod-f"><span></span><button type="submit" class="btn primary" id="aGo">${btn}</button></div></form>`;
   d.querySelector("#ax").onclick=()=>d.close();
-  d.querySelector("#authF").onsubmit=async ev=>{ ev.preventDefault(); const email=$("#aEmail").value.trim(); if(!email) return; $("#aGo").disabled=true;
-    const { error }=await S.sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: location.origin+location.pathname } });
-    $("#aMsg").innerHTML = error? `<div class="err">No se pudo enviar el enlace: ${esc(error.message)}</div>` : `<div class="ok-msg">Listo. Revisa tu correo (y la carpeta de spam) y abre el enlace.</div>`;
-    if(error) $("#aGo").disabled=false; };
-  d.showModal();
+  d.querySelectorAll("[data-mode]").forEach(a=>a.onclick=ev=>{ ev.preventDefault(); const em=$("#aEmail")?.value; openAuth(a.dataset.mode); if(em&&$("#aEmail")) $("#aEmail").value=em; });
+  const msg=(h,ok)=>{ $("#aMsg").innerHTML=ok?`<div class="ok-msg">${h}</div>`:`<div class="err">${h}</div>`; };
+  d.querySelector("#authF").onsubmit=async ev=>{
+    ev.preventDefault(); const go=$("#aGo");
+    const em=($("#aEmail")?.value||"").trim().toLowerCase(), p1=$("#aPass")?.value||"", p2=$("#aPass2")?.value;
+    if(mode!=="newpass" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) return msg("Escribe un correo válido.");
+    if((mode==="signup"||mode==="newpass") && p1.length<8) return msg("La contraseña debe tener al menos 8 caracteres.");
+    if((mode==="signup"||mode==="newpass") && p1!==p2) return msg("Las contraseñas no coinciden.");
+    if(mode==="login" && !p1) return msg("Escribe tu contraseña.");
+    go.disabled=true; let r;
+    if(mode==="login"){ r=await S.sb.auth.signInWithPassword({email:em,password:p1}); if(!r.error){ d.close(); toast("Ingresaste correctamente"); return; } }
+    if(mode==="signup"){ r=await S.sb.auth.signUp({email:em,password:p1,options:{emailRedirectTo:SITE}});
+      if(!r.error){
+        if(r.data?.session){ d.close(); toast("Cuenta creada"); return; }
+        if(r.data?.user && (r.data.user.identities||[]).length===0){ go.disabled=false; return msg(authErr({message:"already registered"})); }
+        return msg(`Listo. Te enviamos un correo a <b>${esc(em)}</b>. Ábrelo y pulsa el enlace de confirmación (solo esta vez; revisa spam). Luego vuelve aquí e ingresa con tu contraseña.`,true); } }
+    if(mode==="reset"){ r=await S.sb.auth.resetPasswordForEmail(em,{redirectTo:SITE}); if(!r.error) return msg(`Si <b>${esc(em)}</b> tiene cuenta, te llegará un correo con el enlace para crear tu nueva contraseña.`,true); }
+    if(mode==="newpass"){ r=await S.sb.auth.updateUser({password:p1}); if(!r.error){ d.close(); toast("Contraseña actualizada"); return; } }
+    go.disabled=false; msg(authErr(r.error));
+  };
+  if(!d.open) d.showModal();
 }
-
 /* ---------- escritura ---------- */
 function errMsg(e){ const m=String(e?.message||e||""); if(/row-level security|permission|42501/i.test(m)) return "No tienes permiso para guardar este cambio."; if(/size|too large|413/i.test(m)) return "La foto pesa demasiado (máx. 10 MB)."; if(/mime|type/i.test(m)) return "Formato no admitido. Usa JPG, PNG o WebP."; return "No se pudo guardar. Inténtalo de nuevo."; }
 const slug = s => String(s||"otro").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"otro";
@@ -757,7 +784,8 @@ document.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{ S.metric=b.d
 $("#sortBy").value=S.sort; $("#sortBy").onchange=e=>{ S.sort=e.target.value; saveUI(); render(); };
 $("#btnNew").onclick=()=>openForm(null);
 $("#btnCsv").onclick=csv;
-$("#btnLogin").onclick=openAuth;
+$("#btnLogin").onclick=()=>openAuth("login");
+$("#btnPass").onclick=()=>openAuth("newpass");
 $("#btnLogout").onclick=async()=>{ await S.sb.auth.signOut(); };
 $("#btnTheme").onclick=()=>{ S.theme=S.theme==="dark"?"light":"dark"; applyTheme(); saveUI(); };
 applyTheme(); render();
@@ -767,7 +795,7 @@ applyTheme(); render();
   S.sb=window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey);
   const { data:{ session } }=await S.sb.auth.getSession(); S.session=session;
   await Promise.all([loadPerfil(),loadEmpresas(),loadTextos()]); await loadRows();
-  S.sb.auth.onAuthStateChange((ev,sess)=>{ const changed=(sess?.user?.id||null)!==(S.session?.user?.id||null); S.session=sess; if(changed){ if(location.hash.includes("access_token")) history.replaceState(null,"",location.pathname); reload(); } });
+  S.sb.auth.onAuthStateChange((ev,sess)=>{ if(ev==="PASSWORD_RECOVERY"){ setTimeout(()=>openAuth("newpass"),0); } const changed=(sess?.user?.id||null)!==(S.session?.user?.id||null); S.session=sess; if(changed){ if(/access_token|type=/.test(location.hash)) history.replaceState(null,"",location.pathname); reload(); } });
   S.sb.channel("fen").on("postgres_changes",{event:"*",schema:"public",table:"iniciativas"},reload).on("postgres_changes",{event:"*",schema:"public",table:"perfiles"},reload).on("postgres_changes",{event:"*",schema:"public",table:"empresas"},reload).on("postgres_changes",{event:"*",schema:"public",table:"configuracion"},()=>loadTextos()).subscribe();
 })();
 </script>

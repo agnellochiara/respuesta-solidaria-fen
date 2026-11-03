@@ -3,7 +3,7 @@
 Tablero de los aportes de las empresas del Grupo Intercorp a la respuesta humanitaria frente al Fenómeno El Niño 2026–27.
 
 - **Cualquiera con el enlace** ve el tablero completo (cifras, mapa, filtros, fotos) sin crear cuenta.
-- **Responsables de cada empresa** ingresan con su correo (enlace mágico, sin contraseña), solicitan acceso y, una vez aprobados por coordinación, crean y editan **solo** las iniciativas de su empresa, y suben fotos.
+- **Responsables de cada empresa** crean una cuenta con su correo y contraseña (confirman el correo una sola vez), solicitan acceso y, una vez aprobados por coordinación, crean y editan **solo** las iniciativas de su empresa, y suben fotos.
 - **Coordinación** aprueba accesos y puede editar todo.
 
 Los permisos se aplican en la base de datos (Row Level Security de Supabase), no solo en la página.
@@ -36,7 +36,9 @@ Los permisos se aplican en la base de datos (Row Level Security de Supabase), no
 1. En Supabase: **Project Settings → API**. Copia **Project URL** y la clave **anon public**.
 2. En GitHub, edita `config.js` y pega ambos valores entre las comillas. Guarda (commit).
 
-### 4. Configurar el ingreso por correo
+### 4. Configurar el ingreso
+En **Authentication → Sign In / Providers → Email**, deja activado **Confirm email** (cada persona confirma su correo una vez al crear su cuenta).
+
 En Supabase: **Authentication → URL Configuration**
 - **Site URL**: la dirección del tablero en GitHub Pages (por ejemplo `https://agnellochiara.github.io/respuesta-solidaria-fen/`).
 - **Redirect URLs**: agrega esa misma dirección.
@@ -45,7 +47,7 @@ En Supabase: **Authentication → URL Configuration**
 En el repositorio: **Settings → Pages → Build and deployment → Source: Deploy from a branch → Branch: `main` / `(root)` → Save**. En 1–2 minutos aparece la dirección pública.
 
 ### 6. Hacerte coordinadora
-1. Abre el tablero, pulsa **Ingresar** y entra con tu correo.
+1. Abre el tablero, pulsa **Ingresar → ¿Primera vez? Crea tu cuenta**, confirma tu correo con el enlace que te llega e ingresa con tu contraseña.
 2. En Supabase, **SQL Editor**, ejecuta (con tu correo):
    ```sql
    update public.perfiles set es_admin = true where email = 'TU_CORREO_AQUI';
