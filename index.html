@@ -303,7 +303,7 @@ const TIPOS = ["Donación en especie","Donación monetaria y/o cash card","Sensi
 const PUB_COLS = "id,empresa,nombre,descripcion,aliado,region,zona,tipo,beneficiarios,monto,cantidad,unidad,fecha_inicio,fecha_culminacion,estado,comentarios,fotos,creado,actualizado";
 
 const CFG = window.FEN_CONFIG || {};
-const S = { sb:null, demo:false, session:null, perfil:null, perfiles:[], invit:[], rows:[], loaded:false, err:null,
+const S = { sb:null, demo:false, session:null, perfil:null, perfiles:[], invit:[], empresasDb:null, rows:[], loaded:false, err:null,
   f:{empresa:"",region:"",estado:"",tipo:"",aliado:"",q:"",mine:false}, metric:"monto", sort:"act", theme:"light" };
 
 const $ = s => document.querySelector(s);
@@ -330,6 +330,8 @@ const toDb = d => ({ empresa:d.empresa, nombre:d.nombre, descripcion:d.descripci
   estado:d.estado, responsable:d.responsable||null, comentarios:d.comentarios||null, fotos:d.fotos||[] });
 
 const isAdmin = () => !!S.perfil?.es_admin;
+function listaEmp(){ const l = S.empresasDb ? S.empresasDb.filter(e=>e.activa).map(e=>e.nombre) : EMPRESAS.filter(e=>e!=="Otro"); return [...l].sort((a,b)=>a.localeCompare(b,"es")); }
+async function loadEmpresas(){ if(!S.sb) return; const { data, error }=await S.sb.from("empresas").select("*"); S.empresasDb = error ? null : data; S.empOk=!error; }
 const myEmpresa = () => S.perfil?.empresa || null;
 function canEditRow(r){ if(S.demo||!S.session) return false; return isAdmin() || (!!myEmpresa() && r.empresa===myEmpresa()); }
 function photoUrl(path){ if(!S.sb) return ""; return S.sb.storage.from("fotos").getPublicUrl(path).data.publicUrl; }
@@ -348,7 +350,7 @@ async function loadPerfil(){
   S.perfil=data||null;
   if(isAdmin()){ const [r,i]=await Promise.all([S.sb.from("perfiles").select("*").order("creado",{ascending:false}), S.sb.from("invitaciones").select("*").order("creado",{ascending:false})]); S.perfiles=r.data||[]; S.invit=i.data||[]; S.invitOk=!i.error; }
 }
-let reT; function reload(){ clearTimeout(reT); reT=setTimeout(async()=>{ await loadPerfil(); await loadRows(); },400); }
+let reT; function reload(){ clearTimeout(reT); reT=setTimeout(async()=>{ await Promise.all([loadPerfil(),loadEmpresas()]); await loadRows(); },400); }
 
 function matches(r, skip){
   const f=S.f;
@@ -521,7 +523,7 @@ function renderBanner(){
   if(pend && !S._reqEdit){ b.className="banner warn"; b.innerHTML=`<span>Solicitaste reportar como <b>${esc(pend)}</b>. La coordinación debe aprobar tu acceso; luego podrás crear y editar las iniciativas de tu empresa.</span><button class="btn" id="reqChange">Cambiar empresa</button>`; $("#reqChange").onclick=()=>{ S._reqEdit=true; renderBanner(); }; return; }
   b.className="banner";
   b.innerHTML=`<span style="min-width:0;flex:1 1 280px"><b>¿Reportas por una empresa del grupo?</b> Elige tu empresa y solicita acceso. Solo podrás editar las iniciativas de esa empresa.</span>
-    <span style="display:flex;gap:8px;flex-wrap:wrap"><select id="reqEmp" class="btn" style="font-weight:500">${EMPRESAS.map(e=>`<option${e===pend?" selected":""}>${esc(e)}</option>`).join("")}</select><button class="btn primary" id="reqGo">Solicitar acceso</button></span>`;
+    <span style="display:flex;gap:8px;flex-wrap:wrap"><select id="reqEmp" class="btn" style="font-weight:500">${listaEmp().map(e=>`<option${e===pend?" selected":""}>${esc(e)}</option>`).join("")}</select><button class="btn primary" id="reqGo">Solicitar acceso</button></span>`;
   $("#reqGo").onclick=async()=>{ $("#reqGo").disabled=true;
     const { error }=await S.sb.from("perfiles").update({empresa_solicitada:$("#reqEmp").value}).eq("id",S.session.user.id);
     if(error){ $("#reqGo").disabled=false; toast(errMsg(error)); } else { S._reqEdit=false; toast("Solicitud enviada a coordinación"); reload(); } };
@@ -535,22 +537,51 @@ function parseInvites(txt){
   for(const line of txt.split(/\n+/).map(l=>l.trim()).filter(Boolean)){
     const m=line.match(/([^\s,;<>]+@[^\s,;<>]+\.[^\s,;<>]+)/); if(!m){ bad.push(line); continue; }
     const email=m[1].toLowerCase(); const rest=line.replace(m[0],"").replace(/^[\s,;\t]+|[\s,;\t]+$/g,"").trim();
-    const emp=EMPRESAS.find(e=>e.toLowerCase()===rest.toLowerCase()) || EMPRESAS.find(e=>rest && e.toLowerCase().includes(rest.toLowerCase()));
+    const L=listaEmp(); const emp=L.find(e=>e.toLowerCase()===rest.toLowerCase()) || L.find(e=>rest && e.toLowerCase().includes(rest.toLowerCase()));
     if(!emp){ bad.push(line); continue; } out.push({email,empresa:emp});
   }
   return {out,bad};
+}
+function renderEmpresasAdmin(){
+  if(S.empOk===false) return `<div><h3>Empresas del grupo</h3><p class="err">Falta ejecutar <code>supabase/04_empresas.sql</code> en Supabase para administrar la lista de empresas.</p></div>`;
+  const uso=new Map(); for(const r of S.rows) uso.set(r.empresa,(uso.get(r.empresa)||0)+1);
+  const L=[...(S.empresasDb||[])].sort((a,b)=>(b.activa-a.activa)||a.nombre.localeCompare(b.nombre,"es"));
+  const huerf=[...uso.keys()].filter(n=>n && !L.some(e=>e.nombre===n));
+  return `<div style="display:flex;flex-direction:column;gap:10px">
+    <h3>Empresas del grupo</h3>
+    <p class="muted small" style="margin:0">Solo las empresas <b>visibles</b> aparecen al crear iniciativas, solicitar acceso o invitar. Ocultar una empresa no borra sus iniciativas. ${L.filter(e=>e.activa).length} visibles · ${L.filter(e=>!e.activa).length} ocultas.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:end"><div class="field" style="flex:1 1 220px"><label for="empNew">Agregar empresa</label><input id="empNew" placeholder="Nombre de la empresa"></div><button class="btn primary" id="empAdd">Agregar</button></div>
+    <div class="scroll-x" style="max-height:340px;overflow:auto"><table class="mem"><tr><th>Empresa</th><th>Iniciativas</th><th>Estado</th><th></th></tr>
+      ${L.map(e=>`<tr><td>${esc(e.nombre)}</td><td class="num">${uso.get(e.nombre)||0}</td><td>${e.activa?'<span class="pill st-Culminado">Visible</span>':'<span class="pill st-Suspendido">Oculta</span>'}</td>
+        <td style="white-space:nowrap"><button class="btn" data-emptog="${esc(e.nombre)}" data-act="${e.activa?1:0}">${e.activa?"Ocultar":"Mostrar"}</button>${(uso.get(e.nombre)||0)===0?` <button class="btn danger" data-empdel="${esc(e.nombre)}">Eliminar</button>`:""}</td></tr>`).join("")}
+    </table></div>
+    ${huerf.length?`<p class="small muted" style="margin:0">Empresas con iniciativas pero fuera de la lista: ${huerf.map(esc).join(", ")}. Puedes agregarlas o cambiar la empresa de esas iniciativas con “Editar”.</p>`:""}
+  </div>`;
+}
+function wireEmpresasAdmin(p){
+  const add=p.querySelector("#empAdd"); if(!add) return;
+  add.onclick=async()=>{ const n=p.querySelector("#empNew").value.trim().replace(/\s+/g," "); if(!n){ toast("Escribe el nombre de la empresa."); return; }
+    if((S.empresasDb||[]).some(e=>e.nombre.toLowerCase()===n.toLowerCase())){ toast("Esa empresa ya está en la lista."); return; }
+    add.disabled=true; const { error }=await S.sb.from("empresas").insert({nombre:n,activa:true}); if(error){ add.disabled=false; toast(errMsg(error)); } else { toast(`${n} agregada`); reload(); } };
+  p.querySelectorAll("[data-emptog]").forEach(b=>b.onclick=async()=>{ b.disabled=true;
+    const { error }=await S.sb.from("empresas").update({activa:b.dataset.act!=="1"}).eq("nombre",b.dataset.emptog); if(error){ b.disabled=false; toast(errMsg(error)); } else reload(); });
+  p.querySelectorAll("[data-empdel]").forEach(b=>b.onclick=async()=>{ if(b.dataset.c!=="1"){ b.dataset.c="1"; b.textContent="Confirmar"; return; } b.disabled=true;
+    const { error }=await S.sb.from("empresas").delete().eq("nombre",b.dataset.empdel); if(error){ b.disabled=false; toast(errMsg(error)); } else { toast("Empresa eliminada"); reload(); } });
 }
 function renderAdmin(){
   const p=$("#adminPanel");
   if(!isAdmin()){ p.hidden=true; return; }
   p.hidden=false; p.className="panel";
+  const keep={}; ["empNew","invEmail","invBulk","invEmp"].forEach(id=>{ const el=document.getElementById(id); if(el) keep[id]=el.value; });
+  const openDet=!!p.querySelector("details[open]");
   const byEmail=new Map(S.perfiles.map(u=>[String(u.email||"").toLowerCase(),u]));
   const pend=S.perfiles.filter(u=>u.empresa_solicitada && u.empresa!==u.empresa_solicitada && !u.es_admin);
   const mem=S.perfiles.filter(u=>u.empresa && !u.es_admin);
   const invPend=S.invit.filter(i=>!byEmail.has(i.email));
-  const sel=(id,v,attr="data-u")=>`<select ${attr}="${esc(id)}" class="btn" style="font-weight:500">${EMPRESAS.map(e=>`<option${e===v?" selected":""}>${esc(e)}</option>`).join("")}</select>`;
+  const sel=(id,v,attr="data-u")=>`<select ${attr}="${esc(id)}" class="btn" style="font-weight:500">${listaEmp().concat(v&&!listaEmp().includes(v)?[v]:[]).map(e=>`<option${e===v?" selected":""}>${esc(e)}</option>`).join("")}</select>`;
   p.innerHTML=`<div class="panel-h"><div><h2>Accesos de empresas</h2><span class="muted small">Solo coordinación ve este panel. ${mem.length} persona${mem.length===1?"":"s"} con acceso · ${invPend.length} invitación${invPend.length===1?"":"es"} sin usar · ${pend.length} solicitud${pend.length===1?"":"es"} pendiente${pend.length===1?"":"s"}</span></div><button class="btn ghost" id="admToggle">${S._admOpen?"Ocultar":"Mostrar"}</button></div>
   <div ${S._admOpen?"":"hidden"} style="display:flex;flex-direction:column;gap:18px">
+    ${renderEmpresasAdmin()}
     <div style="display:flex;flex-direction:column;gap:10px">
       <h3>Invitar responsables</h3>
       ${S.invitOk===false?`<p class="err">Falta ejecutar <code>supabase/03_invitaciones.sql</code> en Supabase para activar las invitaciones.</p>`:""}
@@ -571,7 +602,10 @@ function renderAdmin(){
     ${pend.length?`<div class="scroll-x"><h3>Solicitudes pendientes</h3><table class="mem"><tr><th>Correo</th><th>Empresa solicitada</th><th></th></tr>${pend.map(u=>`<tr><td>${esc(u.email)}</td><td>${sel(u.id,u.empresa_solicitada)}</td><td><button class="btn primary" data-ok="${esc(u.id)}">Aprobar</button></td></tr>`).join("")}</table></div>`:""}
     ${mem.length?`<div class="scroll-x"><h3>Personas con acceso</h3><table class="mem"><tr><th>Correo</th><th>Empresa</th><th></th></tr>${mem.map(u=>`<tr><td>${esc(u.email)}</td><td>${esc(u.empresa)}</td><td><button class="btn danger" data-rev="${esc(u.id)}" data-em="${esc(String(u.email||"").toLowerCase())}">Quitar acceso</button></td></tr>`).join("")}</table></div>`:""}
   </div>`;
+  Object.entries(keep).forEach(([id,v])=>{ const el=document.getElementById(id); if(el && v) el.value=v; });
+  if(openDet){ const d=p.querySelector("details"); if(d) d.open=true; }
   $("#admToggle").onclick=()=>{ S._admOpen=!S._admOpen; renderAdmin(); };
+  wireEmpresasAdmin(p);
   const addInv=async list=>{ const { error }=await S.sb.from("invitaciones").upsert(list,{onConflict:"email"}); if(error){ toast(errMsg(error)); return false; } return true; };
   $("#invAdd").onclick=async()=>{ const email=$("#invEmail").value.trim().toLowerCase(), empresa=$("#invEmp").value;
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ toast("Escribe un correo válido."); return; }
@@ -620,7 +654,7 @@ function openForm(r){
   $("#frm").innerHTML=`
     <div class="mod-h"><h2>${isNew?"Nueva iniciativa":"Editar iniciativa"}</h2><button type="button" class="btn ghost" id="fx" aria-label="Cerrar">✕</button></div>
     <div class="mod-b">
-      ${fld("i_emp","Empresa",empLocked?`<input id="i_emp" value="${esc(v.empresa||me||"")}" disabled>`:`<select id="i_emp" required><option value="">Elige…</option>${EMPRESAS.concat(v.empresa&&!EMPRESAS.includes(v.empresa)?[v.empresa]:[]).map(e=>`<option${e===v.empresa?" selected":""}>${esc(e)}</option>`).join("")}</select>`)}
+      ${fld("i_emp","Empresa",empLocked?`<input id="i_emp" value="${esc(v.empresa||me||"")}" disabled>`:`<select id="i_emp" required><option value="">Elige…</option>${listaEmp().concat(v.empresa&&!listaEmp().includes(v.empresa)?[v.empresa]:[]).map(e=>`<option${e===v.empresa?" selected":""}>${esc(e)}</option>`).join("")}</select>`)}
       ${fld("i_est","Estado",`<select id="i_est">${ESTADOS.map(e=>`<option${e===v.estado?" selected":""}>${e}</option>`).join("")}</select>`)}
       ${fld("i_nom","Nombre de la iniciativa *",`<input id="i_nom" required value="${esc(v.nombre)}">`,true)}
       ${fld("i_desc","Descripción breve",`<textarea id="i_desc">${esc(v.descripcion)}</textarea>`,true)}
@@ -714,9 +748,9 @@ applyTheme(); render();
   if(!CFG.supabaseUrl || !CFG.supabaseAnonKey || !window.supabase){ S.demo=true; return loadRows(); }
   S.sb=window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey);
   const { data:{ session } }=await S.sb.auth.getSession(); S.session=session;
-  await loadPerfil(); await loadRows();
+  await Promise.all([loadPerfil(),loadEmpresas()]); await loadRows();
   S.sb.auth.onAuthStateChange((ev,sess)=>{ const changed=(sess?.user?.id||null)!==(S.session?.user?.id||null); S.session=sess; if(changed){ if(location.hash.includes("access_token")) history.replaceState(null,"",location.pathname); reload(); } });
-  S.sb.channel("fen").on("postgres_changes",{event:"*",schema:"public",table:"iniciativas"},reload).on("postgres_changes",{event:"*",schema:"public",table:"perfiles"},reload).subscribe();
+  S.sb.channel("fen").on("postgres_changes",{event:"*",schema:"public",table:"iniciativas"},reload).on("postgres_changes",{event:"*",schema:"public",table:"perfiles"},reload).on("postgres_changes",{event:"*",schema:"public",table:"empresas"},reload).subscribe();
 })();
 </script>
 </body>
