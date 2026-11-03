@@ -596,7 +596,7 @@ function renderAdmin(){
   const mem=S.perfiles.filter(u=>u.empresa && !u.es_admin);
   const invPend=S.invit.filter(i=>!byEmail.has(i.email));
   const sel=(id,v,attr="data-u")=>`<select ${attr}="${esc(id)}" class="btn" style="font-weight:500">${listaEmp().concat(v&&!listaEmp().includes(v)?[v]:[]).map(e=>`<option${e===v?" selected":""}>${esc(e)}</option>`).join("")}</select>`;
-  p.innerHTML=`<div class="panel-h"><div><h2>Accesos de empresas</h2><span class="muted small">Solo coordinación ve este panel. ${mem.length} persona${mem.length===1?"":"s"} con acceso · ${invPend.length} invitación${invPend.length===1?"":"es"} sin usar · ${pend.length} solicitud${pend.length===1?"":"es"} pendiente${pend.length===1?"":"s"}</span></div><button class="btn ghost" id="admToggle">${S._admOpen?"Ocultar":"Mostrar"}</button></div>
+  p.innerHTML=`<div class="panel-h"><div><h2>Panel de coordinación</h2><span class="muted small">Solo coordinación ve este panel: textos, empresas y accesos. ${mem.length} persona${mem.length===1?"":"s"} con acceso · ${invPend.length} invitación${invPend.length===1?"":"es"} sin usar · ${pend.length} solicitud${pend.length===1?"":"es"} pendiente${pend.length===1?"":"s"}</span></div><button class="btn ghost" id="admToggle">${S._admOpen?"Ocultar":"Mostrar"}</button></div>
   <div ${S._admOpen?"":"hidden"} style="display:flex;flex-direction:column;gap:18px">
     ${renderTextosAdmin()}
     ${renderEmpresasAdmin()}

@@ -50,14 +50,14 @@ En el repositorio: **Settings → Pages → Build and deployment → Source: Dep
    ```sql
    update public.perfiles set es_admin = true where email = 'TU_CORREO_AQUI';
    ```
-3. Recarga el tablero: verás el panel **Accesos de empresas**.
+3. Recarga el tablero: verás el **Panel de coordinación**.
 
 ## Uso diario
-**Textos del tablero:** en **Accesos de empresas → Textos del tablero** cambia título, descripción y nota de fuente.
+**Textos del tablero:** en **Panel de coordinación → Textos del tablero** cambia título, descripción y nota de fuente.
 
-**Empresas del grupo:** en **Accesos de empresas → Empresas del grupo** agrega, oculta o elimina empresas. Solo las visibles aparecen en los formularios.
+**Empresas del grupo:** en **Panel de coordinación → Empresas del grupo** agrega, oculta o elimina empresas. Solo las visibles aparecen en los formularios.
 
-**Invitar por adelantado (recomendado):** en **Accesos de empresas → Invitar responsables**, registra correo y empresa (uno a uno o pegando una lista `correo, empresa`). Luego pulsa **Copiar mensaje de invitación** y envíalo por correo o WhatsApp. Al ingresar con ese correo, la persona ya tiene acceso aprobado.
+**Invitar por adelantado (recomendado):** en **Panel de coordinación → Invitar responsables**, registra correo y empresa (uno a uno o pegando una lista `correo, empresa`). Luego pulsa **Copiar mensaje de invitación** y envíalo por correo o WhatsApp. Al ingresar con ese correo, la persona ya tiene acceso aprobado.
 
 **Por solicitud:** si alguien no invitado ingresa, elige su empresa en **Solicitar acceso** y tú lo apruebas en el mismo panel.
 
