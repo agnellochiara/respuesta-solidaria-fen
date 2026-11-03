@@ -1,0 +1,678 @@
+<!doctype html>
+<html lang="es" data-fen="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Respuesta Solidaria FEN</title>
+<meta name="description" content="Aportes de las empresas del Grupo Intercorp a la respuesta humanitaria frente al Fenómeno El Niño 2026–27.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23002FA8'/%3E%3Cpath d='M9 22V10l14 3v9z' fill='%2323E5BF'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Didact+Gothic&display=swap">
+<style>
+html{color-scheme:light}
+body{margin:0;font-size:14px;-webkit-text-size-adjust:100%}
+img{max-width:100%}
+[hidden]{display:none!important}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+
+/* Layout: tablero operativo — cabecera con filtros, fila de cifras, mapa de calor del Perú + ranking, luego lista editable y galería */
+:root{
+  /* Paleta Intercorp: azul #002FA8 · crema #F2EBE3 · lila #AB80FF · menta #23E5BF · coral #FF5757 · celeste #1ACFFF */
+  --bg:#FAF6F0; --surface:#ffffff; --surface-2:#F6F0E7; --line:#EAE0D2;
+  --ink:#0a1b47; --ink-2:#44507a; --ink-3:#7c84a3;
+  --sea:#002FA8; --sea-ink:#ffffff; --warm:#FF5757; --lila:#AB80FF;
+  --heat-0:#ECE3D6; --heat-1:#c6f1ff; --heat-2:#7fe2ff; --heat-3:#1ACFFF; --heat-4:#1a7fe0; --heat-5:#002FA8;
+  --c-ok:#23E5BF; --c-run:#AB80FF; --c-plan:#1ACFFF; --c-stop:#FF5757;
+  --ok:#0a7a63; --ok-bg:#d3f8ef; --run:#5a2fc2; --run-bg:#efe6ff; --plan:#00698a; --plan-bg:#d6f5ff; --stop:#c42b2b; --stop-bg:#ffe3e3;
+  --shadow:0 1px 2px rgba(0,47,168,.06),0 4px 16px rgba(0,47,168,.07);
+  color-scheme:light;
+  --f-display:"Century Gothic","CenturyGothic","Didact Gothic","Futura",system-ui,sans-serif;
+  --f-body:"Century Gothic","CenturyGothic","Didact Gothic","Futura",system-ui,sans-serif;
+  --f-data:"Century Gothic","CenturyGothic","Didact Gothic","Futura",system-ui,sans-serif;
+}
+:root[data-fen="dark"]{
+  --bg:#071233; --surface:#0d1c47; --surface-2:#142659; --line:#22356e;
+  --ink:#F2EBE3; --ink-2:#b9bfd6; --ink-3:#8590b5;
+  --sea:#5b86ff; --sea-ink:#071233; --warm:#ff7a7a; --lila:#c3a5ff;
+  --heat-0:#1a2a5c; --heat-1:#1d3f8a; --heat-2:#1f5fc2; --heat-3:#1a8fe8; --heat-4:#1ACFFF; --heat-5:#9beaff;
+  --ok:#5ff0d2; --ok-bg:#0f3d3d; --run:#cdb3ff; --run-bg:#2c2160; --plan:#7fe2ff; --plan-bg:#0f3657; --stop:#ff9a9a; --stop-bg:#4a1d2b;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25);
+  color-scheme:dark}
+:root[data-fen="dark"] .logo{filter:brightness(0) invert(1)}
+.logo{height:30px;width:auto;display:block;max-width:100%}
+.item{cursor:pointer;border-radius:8px;transition:background .15s}
+.item:hover{background:var(--surface-2)}
+.det-photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+.det-photos img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;cursor:zoom-in;background:var(--surface-2);max-width:100%}
+.det-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px 16px}
+.det-grid div{display:flex;flex-direction:column;min-width:0}
+.det-grid span{font-size:11.5px;font-weight:600;color:var(--ink-2);text-transform:uppercase;letter-spacing:.05em}
+.det-body{padding:16px 18px;overflow:auto;display:flex;flex-direction:column;gap:16px}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.5}
+.wrap{max-width:1280px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px;display:flex;flex-direction:column;gap:20px}
+h1,h2,h3{font-family:var(--f-display);font-stretch:85%;margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:clamp(26px,4vw,38px);font-weight:800;line-height:1.05}
+h2{font-size:19px;font-weight:700}
+h3{font-size:15px;font-weight:700}
+.eyebrow{font-family:var(--f-display);font-stretch:80%;text-transform:uppercase;letter-spacing:.09em;font-size:12px;font-weight:700;color:var(--warm)}
+.muted{color:var(--ink-2)} .small{font-size:12.5px}
+.num{font-variant-numeric:tabular-nums}
+button,select,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--sea);outline-offset:2px}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 12px;cursor:pointer;font-weight:600;font-size:13px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn:hover{border-color:var(--ink-3)}
+.btn.primary{background:var(--sea);border-color:var(--sea);color:var(--sea-ink)}
+.btn.ok{background:var(--ok-bg);border-color:transparent;color:var(--ok)}
+.btn.danger{color:var(--stop)}
+.btn.ghost{background:transparent;border-color:transparent;padding:6px 8px}
+.btn:disabled{opacity:.5;cursor:default}
+
+/* header */
+header.top{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:flex-end;border-bottom:3px solid var(--sea);padding-bottom:16px}
+.who{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:600;background:var(--surface-2);color:var(--ink-2)}
+.chip img{width:20px;height:20px;border-radius:50%}
+.chip.role-owner{background:var(--sea);color:var(--sea-ink)}
+.chip.role-member{background:var(--ok-bg);color:var(--ok)}
+.chip.role-pend{background:var(--run-bg);color:var(--run)}
+.banner{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:14px 16px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.banner.warn{border-color:var(--run);background:var(--run-bg)}
+
+/* filters */
+.filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;align-items:end}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field label{font-size:11.5px;font-weight:600;color:var(--ink-2);text-transform:uppercase;letter-spacing:.05em}
+.field select,.field input,.field textarea{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 10px;width:100%;min-width:0}
+.field textarea{resize:vertical;min-height:70px}
+.toggle{display:flex;gap:8px;align-items:center;font-weight:600;font-size:13px;padding:8px 0}
+.activef{display:flex;flex-wrap:wrap;gap:6px}
+.activef .chip{cursor:pointer;background:var(--surface);border:1px solid var(--line)}
+
+/* KPIs */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.kpi{background:var(--surface);padding:14px 16px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.kpi .k{font-size:12px;color:var(--ink-2);font-weight:600}
+.kpi .v{font-family:var(--f-display);font-stretch:80%;font-weight:800;font-size:30px;line-height:1.1;font-variant-numeric:tabular-nums}
+.kpi .s{font-size:12px;color:var(--ink-3)}
+.kpi.lead .v{color:var(--sea)}
+.meter{height:6px;border-radius:3px;background:var(--surface-2);overflow:hidden;display:flex;margin-top:6px}
+.meter i{display:block;height:100%}
+
+/* panels */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.panel-h{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.grid-map{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:20px}
+@media (max-width:860px){.grid-map{grid-template-columns:1fr}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{border:0;background:var(--surface);padding:6px 10px;font-size:12.5px;font-weight:600;cursor:pointer;color:var(--ink-2)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.mapbox{position:relative;display:flex;gap:16px;align-items:flex-start}
+.mapbox svg{width:100%;max-width:440px;height:auto;max-height:560px;display:block;margin:0 auto}
+.mapbox path{stroke:var(--surface);stroke-width:1;cursor:pointer;transition:opacity .15s}
+.mapbox path:hover{opacity:.8}
+.mapbox path.sel{stroke:var(--ink);stroke-width:2.2}
+.mapbox text{font-family:var(--f-data);font-size:10px;fill:var(--ink);pointer-events:none;paint-order:stroke;stroke:var(--surface);stroke-width:3px}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);padding:8px 10px;border-radius:8px;font-size:12px;line-height:1.4;z-index:5;max-width:220px}
+.legend{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ink-2);flex-wrap:wrap}
+.legend .ramp{display:flex;height:10px;width:140px;border-radius:2px;overflow:hidden}
+.legend .ramp i{flex:1}
+.nac{display:flex;justify-content:space-between;gap:10px;align-items:center;border:1px dashed var(--ink-3);border-radius:10px;padding:10px 12px;cursor:pointer;background:transparent;text-align:left;width:100%}
+.nac.sel{border-style:solid;border-color:var(--ink)}
+
+.rank{display:flex;flex-direction:column;gap:2px;max-height:520px;overflow:auto}
+.rank button{display:grid;grid-template-columns:minmax(90px,130px) 1fr auto;gap:10px;align-items:center;border:0;background:transparent;padding:5px 6px;border-radius:6px;cursor:pointer;text-align:left}
+.rank button:hover,.rank button.sel{background:var(--surface-2)}
+.rank .bar{height:10px;border-radius:2px;background:var(--surface-2);overflow:hidden}
+.rank .bar i{display:block;height:100%;background:var(--heat-4)}
+.rank .val{font-family:var(--f-data);font-size:12px;text-align:right}
+
+.grid-2{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:20px}
+@media (max-width:860px){.grid-2{grid-template-columns:1fr}}
+.hbars{display:flex;flex-direction:column;gap:8px}
+.hb{display:grid;grid-template-columns:minmax(110px,170px) 1fr auto;gap:10px;align-items:center;font-size:13px}
+.hb .lab{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hb .track{height:16px;background:var(--surface-2);border-radius:3px;overflow:hidden;display:flex}
+.hb .track i{display:block;height:100%}
+.hb .val{font-family:var(--f-data);font-size:12px;min-width:84px;text-align:right}
+.stack{display:flex;height:22px;border-radius:4px;overflow:hidden;background:var(--surface-2)}
+.stack i{display:block;height:100%}
+.keyrow{display:flex;flex-wrap:wrap;gap:12px;font-size:12.5px}
+.keyrow span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:2px;display:inline-block}
+
+/* list */
+.list{display:flex;flex-direction:column}
+.item{display:grid;grid-template-columns:minmax(0,2.4fr) minmax(0,1.2fr) minmax(0,1fr) auto;gap:14px;padding:14px 4px;border-top:1px solid var(--line);align-items:start}
+.item:first-child{border-top:0}
+@media (max-width:760px){.item{grid-template-columns:1fr;gap:8px}}
+.item .t{font-weight:600}
+.item .d{color:var(--ink-2);font-size:13px;margin-top:2px}
+.item .meta{display:flex;flex-direction:column;gap:2px;font-size:13px}
+.item .meta b{font-weight:600}
+.item .figs{display:flex;flex-direction:column;gap:2px;font-family:var(--f-data);font-size:12.5px}
+.item .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;align-items:center}
+@media (max-width:760px){.item .acts{justify-content:flex-start}}
+.pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:2px 9px;font-size:12px;font-weight:600;white-space:nowrap}
+.pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.st-Culminado{background:var(--ok-bg);color:var(--ok)}
+.st-En-curso{background:var(--run-bg);color:var(--run)}
+.st-Planificado{background:var(--plan-bg);color:var(--plan)}
+.st-Suspendido{background:var(--stop-bg);color:var(--stop)}
+.thumbs{display:flex;gap:4px;margin-top:6px}
+.thumbs img{width:44px;height:44px;object-fit:cover;border-radius:6px;cursor:pointer;background:var(--surface-2)}
+.tag{font-size:11px;color:var(--ink-3);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.empty{padding:28px 8px;text-align:center;color:var(--ink-2)}
+
+/* gallery */
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
+.gallery figure{margin:0;display:flex;flex-direction:column;gap:6px;cursor:pointer}
+.gallery img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;background:var(--surface-2);max-width:100%}
+.gallery figcaption{font-size:12px;color:var(--ink-2);line-height:1.35}
+
+/* modal */
+dialog{border:0;border-radius:14px;padding:0;background:var(--surface);color:var(--ink);width:min(760px,calc(100vw - 24px));max-height:calc(100vh - 24px);box-shadow:var(--shadow)}
+dialog::backdrop{background:rgba(8,18,24,.55)}
+.mod{display:flex;flex-direction:column;max-height:calc(100vh - 24px)}
+.mod-h{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px}
+.mod-b{padding:16px 18px;overflow:auto;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mod-b .full{grid-column:1/-1}
+@media (max-width:600px){.mod-b{grid-template-columns:1fr}}
+.mod-f{padding:12px 18px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center}
+.photos{display:flex;gap:8px;flex-wrap:wrap}
+.photos .ph{position:relative}
+.photos img{width:88px;height:88px;object-fit:cover;border-radius:8px}
+.photos .ph button{position:absolute;top:4px;right:4px;border:0;border-radius:50%;width:22px;height:22px;background:rgba(0,0,0,.65);color:#fff;cursor:pointer;line-height:1}
+.drop{border:1px dashed var(--ink-3);border-radius:8px;width:88px;height:88px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:var(--ink-2);cursor:pointer;padding:4px}
+.lb{background:transparent;box-shadow:none;width:auto;max-width:calc(100vw - 24px)}
+.lb img{max-height:80vh;max-width:100%;border-radius:10px;display:block}
+.lb p{color:#fff;margin:8px 0 0;font-size:13px}
+.err{color:var(--stop);font-size:13px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;z-index:50;box-shadow:var(--shadow)}
+table.mem{width:100%;border-collapse:collapse;font-size:13px}
+table.mem td,table.mem th{padding:8px 6px;border-top:1px solid var(--line);text-align:left;vertical-align:middle}
+table.mem th{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-2);border-top:0}
+.scroll-x{overflow-x:auto}
+.src{font-size:11.5px;color:var(--ink-3)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+.authbox{display:flex;flex-direction:column;gap:12px;padding:16px 18px}
+.ok-msg{background:var(--ok-bg);color:var(--ok);padding:10px 12px;border-radius:8px;font-weight:600}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+      <span class="eyebrow">Grupo Intercorp · Fenómeno El Niño 2026–27</span>
+      <h1>Respuesta Solidaria FEN</h1>
+      <span class="muted">Aportes de las empresas del grupo a la respuesta humanitaria, actualizados por cada empresa.</span>
+    </div>
+    <div class="who">
+      <span id="who" class="chip">Conectando…</span>
+      <button class="btn" id="btnTheme" aria-pressed="false">Modo nocturno</button>
+      <button class="btn" id="btnCsv">Descargar CSV</button>
+      <button class="btn" id="btnLogin" hidden>Ingresar</button>
+      <button class="btn ghost" id="btnLogout" hidden>Salir</button>
+      <button class="btn primary" id="btnNew" hidden>+ Nueva iniciativa</button>
+    </div>
+  </header>
+
+  <div id="banner" hidden></div>
+  <div id="adminPanel" hidden></div>
+
+  <section class="panel" aria-label="Filtros">
+    <div class="filters">
+      <div class="field"><label for="fEmp">Empresa</label><select id="fEmp"></select></div>
+      <div class="field"><label for="fReg">Región</label><select id="fReg"></select></div>
+      <div class="field"><label for="fEst">Estado</label><select id="fEst"></select></div>
+      <div class="field"><label for="fTipo">Tipo de apoyo</label><select id="fTipo"></select></div>
+      <div class="field"><label for="fAli">Aliado</label><select id="fAli"></select></div>
+      <div class="field"><label for="fQ">Buscar</label><input id="fQ" type="search" placeholder="Iniciativa, zona, aliado…"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+      <div class="activef" id="activeF"></div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <label class="toggle" id="mineWrap" hidden><input type="checkbox" id="fMine"> Solo las de mi empresa</label>
+        <button class="btn ghost" id="btnClear">Limpiar filtros</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="kpis" id="kpis" aria-label="Indicadores"></section>
+
+  <section class="panel">
+    <div class="panel-h">
+      <div><h2>Mapa de impacto</h2><span class="muted small">Toca una región para filtrar todo el tablero.</span></div>
+      <div class="seg" role="group" aria-label="Métrica del mapa">
+        <button data-m="monto" aria-pressed="true">Valorizado</button>
+        <button data-m="ben" aria-pressed="false">Beneficiarios</button>
+        <button data-m="n" aria-pressed="false">Iniciativas</button>
+      </div>
+    </div>
+    <div class="grid-map">
+      <div style="display:flex;flex-direction:column;gap:10px;min-width:0">
+        <div class="mapbox" id="mapbox"></div>
+        <div class="legend" id="legend"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;min-width:0">
+        <button class="nac" id="nac"></button>
+        <div class="rank" id="rank"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="grid-2">
+    <div class="panel"><div class="panel-h"><h2>Aporte por empresa</h2><span class="muted small">Valorizado (S/)</span></div><div class="hbars" id="byEmp"></div></div>
+    <div class="panel"><div class="panel-h"><h2>Avance de iniciativas</h2></div><div id="byEst"></div>
+      <h3 style="margin-top:6px">Por tipo de apoyo</h3><div class="hbars" id="byTipo"></div></div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-h"><div><h2>Iniciativas</h2><span class="muted small" id="listCount"></span></div>
+      <div class="field" style="flex-direction:row;align-items:center;gap:8px"><label for="sortBy" style="text-transform:none;letter-spacing:0">Ordenar</label>
+        <select id="sortBy" style="width:auto"><option value="act">Última actualización</option><option value="monto">Valorizado</option><option value="ben">Beneficiarios</option><option value="emp">Empresa</option></select></div>
+    </div>
+    <div class="list" id="list"></div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-h"><h2>Fotos de las iniciativas</h2><span class="muted small" id="galCount"></span></div>
+    <div class="gallery" id="gallery"></div>
+  </section>
+
+  <p class="src">Fuente: reportes de avance de cada empresa (base inicial importada del Excel “Avances Respuesta Solidaria FEN – Intercorp”, 2 nov 2026). Valorizado = monto invertido o valor de lo donado en soles. Beneficiarios = beneficiarios directos reportados.</p>
+</div>
+
+<dialog id="dlg"><form class="mod" id="frm" novalidate></form></dialog>
+<dialog id="det"></dialog>
+<dialog id="auth"></dialog>
+<dialog id="lb" class="lb"></dialog>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const MAP = {"w":500,"h":733,"r":{"Amazonas":{"d":"M140.8,277.0L137.4,277.5L136.0,277.0L134.2,277.9L131.3,277.3L130.7,271.4L129.0,265.5L127.1,264.2L125.9,259.5L123.8,256.7L121.2,254.3L118.1,252.5L118.1,251.2L114.0,245.1L110.8,241.3L108.0,241.5L107.1,239.2L105.2,236.7L103.2,231.7L104.3,226.7L107.4,222.7L109.3,218.4L111.0,216.6L110.8,214.4L107.5,210.9L104.3,209.2L103.3,205.6L103.7,202.6L105.4,201.2L106.9,198.5L105.8,196.9L107.6,189.4L105.9,187.9L106.1,184.8L103.4,183.4L105.2,181.9L105.2,179.7L106.1,178.5L106.3,175.0L105.6,171.8L106.9,170.2L108.4,163.9L110.0,161.4L109.0,158.2L110.6,155.9L112.0,155.8L112.5,152.8L115.0,150.2L115.4,147.9L114.6,146.1L115.5,144.5L116.0,140.7L116.9,139.6L117.1,137.2L118.7,134.3L121.6,134.6L122.8,138.8L125.4,137.7L124.5,132.5L133.2,122.1L134.0,119.9L135.6,118.8L138.9,117.9L140.0,125.9L140.1,134.8L140.7,136.8L146.4,143.8L146.5,146.8L145.0,149.6L148.3,153.4L149.4,156.2L149.5,159.6L149.1,162.9L147.7,168.5L148.4,173.4L147.6,177.5L144.9,179.2L144.2,183.6L140.3,187.2L139.4,189.0L139.4,192.5L140.8,194.8L140.8,196.5L138.2,199.7L138.3,201.7L140.2,202.3L143.3,205.0L141.6,207.0L143.4,209.2L143.8,212.0L143.3,214.9L141.4,214.7L140.4,216.0L140.5,220.0L141.7,222.7L140.2,225.9L140.6,231.2L144.0,232.8L145.0,235.9L144.4,237.7L147.3,238.8L149.7,241.0L151.9,238.5L153.6,240.9L155.1,240.0L157.1,243.0L159.6,244.1L162.0,244.3L162.9,247.7L165.5,250.6L164.0,253.7L162.0,253.7L160.5,251.6L160.0,254.7L157.9,257.2L157.5,259.4L155.2,262.6L153.5,262.7L155.7,266.4L149.3,265.5L146.6,262.9L143.4,265.6L141.3,265.1L141.3,268.5L140.7,270.8L142.2,274.2L140.8,277.0Z","c":[129.2,201.2]},"Áncash":{"d":"M158.2,339.7L159.3,342.0L159.1,343.8L160.5,344.4L161.0,346.6L164.2,354.0L165.6,355.1L166.4,357.3L169.3,358.4L171.5,361.0L179.1,363.9L181.3,366.8L181.6,368.7L180.3,372.9L178.1,371.5L177.0,368.9L173.3,374.4L172.6,377.2L173.2,379.5L170.9,382.6L168.8,384.4L171.3,388.4L171.9,386.9L174.6,389.3L174.9,391.1L178.1,396.9L177.6,398.0L178.3,401.9L174.1,403.3L174.5,409.4L172.1,410.7L170.5,409.8L169.8,411.6L167.9,412.0L166.4,414.6L163.9,417.0L163.2,420.5L160.8,420.3L158.5,421.2L155.2,424.9L154.4,427.7L151.2,428.3L148.0,427.6L147.6,424.3L148.0,421.8L145.5,422.3L145.3,419.6L141.7,421.0L143.8,415.7L147.2,413.7L143.4,411.3L141.0,411.3L140.8,415.7L139.3,417.8L140.3,419.0L140.3,421.3L137.9,421.2L135.8,422.9L134.9,420.2L132.9,418.2L130.9,413.4L129.1,412.3L127.3,406.5L124.8,404.3L124.4,400.3L121.7,393.4L122.4,390.3L120.6,388.7L118.6,384.9L116.9,383.3L116.8,380.7L115.6,377.3L116.3,376.3L114.4,374.9L114.5,372.1L112.6,371.7L111.2,369.6L112.1,366.6L111.2,365.7L108.7,365.3L109.2,363.1L106.7,361.6L105.9,357.2L108.0,356.3L108.1,352.8L109.0,350.2L110.9,348.6L113.6,347.9L117.3,345.4L121.6,344.8L123.7,342.5L122.7,340.7L124.4,338.6L125.8,335.6L125.9,333.2L126.7,330.9L130.6,327.4L133.9,326.3L135.3,321.5L138.8,321.2L142.4,321.4L145.2,320.5L145.6,322.7L146.9,324.7L148.8,326.2L152.6,331.9L153.4,335.3L155.0,337.7L158.2,339.7Z","c":[144.3,374.7]},"Apurímac":{"d":"M349.4,584.9L345.2,585.9L342.6,585.2L339.4,585.5L336.9,584.5L335.3,586.6L334.6,588.9L333.9,586.9L330.3,585.8L328.2,584.0L324.4,586.1L322.5,585.4L321.0,586.7L318.5,586.8L317.5,587.7L314.7,586.6L313.2,587.1L312.6,589.1L309.4,592.2L306.3,589.5L306.0,586.0L308.4,584.5L307.5,581.7L308.4,581.0L307.5,578.1L306.1,576.8L308.4,569.2L304.5,562.0L304.2,559.5L302.7,555.7L301.8,555.1L301.0,552.4L299.1,549.0L302.1,547.9L299.2,544.7L297.3,544.1L296.4,538.8L295.1,534.4L296.7,530.6L296.1,529.9L297.1,526.5L298.7,525.3L299.9,529.2L303.2,530.4L306.0,532.1L309.6,535.7L312.6,536.3L314.9,535.9L319.3,537.5L320.2,535.2L324.5,536.4L328.0,535.5L329.7,534.1L332.7,534.1L333.0,535.1L336.7,535.5L338.6,537.8L342.1,539.0L342.9,540.1L345.8,540.5L351.4,542.7L352.2,544.8L356.2,546.6L358.9,546.7L362.7,549.8L364.9,554.7L365.8,555.7L366.0,559.0L365.3,561.5L365.8,563.6L364.3,565.4L364.8,566.6L360.6,571.0L358.6,572.4L358.2,574.6L355.5,576.1L353.9,575.9L352.5,577.7L351.1,577.6L348.2,580.5L349.8,582.7L349.4,584.9Z","c":[329.6,559.7]},"Arequipa":{"d":"M246.8,616.2L247.7,615.8L249.5,611.7L250.9,610.4L252.0,606.7L254.8,604.5L256.9,604.0L259.0,602.4L260.8,603.9L265.2,604.4L267.3,604.1L271.3,605.5L273.4,605.7L273.8,608.5L273.0,610.8L276.9,612.8L276.2,614.1L277.3,617.6L281.5,618.1L283.1,615.6L285.4,614.1L287.6,616.7L285.8,622.1L286.4,623.7L291.2,618.1L294.3,615.5L294.0,612.7L294.6,611.5L296.7,611.4L298.6,613.9L301.6,616.0L302.9,615.1L306.6,614.8L311.1,612.7L313.1,614.4L316.9,614.2L317.3,610.3L318.9,609.9L321.7,610.7L324.0,607.4L324.2,605.9L326.7,603.8L328.4,601.0L329.1,596.7L327.3,594.5L328.5,591.1L330.8,589.1L334.6,588.9L335.3,586.6L336.9,584.5L339.4,585.5L342.6,585.2L345.2,585.9L349.4,584.9L348.8,587.0L349.4,589.5L352.0,591.5L355.6,591.8L358.1,590.6L362.3,589.6L362.9,591.7L366.2,593.5L366.7,590.9L366.4,586.2L368.5,583.8L370.3,585.9L369.6,587.6L371.0,590.1L372.3,590.1L373.8,594.0L376.0,594.3L378.0,596.1L377.2,598.9L375.8,601.2L381.1,602.1L382.4,604.0L384.3,603.5L385.0,600.9L387.3,601.6L388.3,600.8L387.5,597.5L390.5,598.4L392.8,601.6L395.0,603.3L397.2,601.5L399.3,601.3L401.8,603.3L400.3,605.0L401.1,606.8L399.5,608.3L400.9,610.0L401.5,613.0L400.6,615.4L404.6,616.4L405.9,614.7L407.7,616.7L406.9,618.0L407.1,621.0L410.7,624.2L411.4,627.0L410.0,629.9L413.6,635.4L414.6,637.6L414.9,640.6L413.1,640.7L412.4,642.2L413.2,648.1L409.2,650.8L408.0,650.9L408.4,655.0L409.3,656.9L407.8,658.3L404.4,656.8L402.0,657.5L397.8,657.1L397.8,660.5L396.5,663.1L396.1,667.5L394.5,668.6L392.9,667.3L390.7,668.1L389.9,670.7L390.1,673.1L392.3,679.3L394.1,679.3L395.5,682.2L390.1,688.5L388.1,689.9L380.2,686.9L375.4,685.8L373.6,684.8L371.1,682.0L366.5,679.2L365.0,679.3L359.7,674.6L356.6,673.5L356.4,671.6L353.8,669.0L350.4,666.6L346.6,665.6L340.0,664.6L337.6,663.6L331.9,659.3L329.1,659.2L326.5,658.0L322.3,655.3L319.7,655.0L316.5,653.7L316.2,652.0L310.8,649.7L304.1,647.7L301.0,647.3L299.8,646.3L294.3,643.9L293.5,642.8L287.8,639.2L287.0,636.6L282.5,634.5L279.6,633.6L278.3,632.1L276.2,632.4L273.6,631.6L271.8,630.2L270.8,627.5L263.0,624.6L259.5,622.5L256.3,621.2L253.2,618.9L249.4,616.9L246.8,616.2ZM400.1,653.9L403.4,654.8L403.7,652.5L399.7,652.7L400.1,653.9Z","c":[349.3,632.2]},"Ayacucho":{"d":"M275.5,485.4L276.4,487.7L278.4,488.0L281.7,491.0L284.3,491.8L285.2,489.9L289.9,488.2L290.5,491.9L293.6,494.7L295.9,499.7L297.0,503.0L299.0,504.8L299.9,504.1L303.9,509.1L305.3,512.2L307.9,514.4L308.0,518.1L309.7,519.8L310.9,522.8L311.9,523.8L314.8,530.4L317.2,533.3L320.2,535.2L319.3,537.5L314.9,535.9L312.6,536.3L309.6,535.7L306.0,532.1L303.2,530.4L299.9,529.2L298.7,525.3L297.1,526.5L296.1,529.9L296.7,530.6L295.1,534.4L296.4,538.8L297.3,544.1L299.2,544.7L302.1,547.9L299.1,549.0L301.0,552.4L301.8,555.1L302.7,555.7L304.2,559.5L304.5,562.0L308.4,569.2L306.1,576.8L307.5,578.1L308.4,581.0L307.5,581.7L308.4,584.5L306.0,586.0L306.3,589.5L309.4,592.2L312.6,589.1L313.2,587.1L314.7,586.6L317.5,587.7L318.5,586.8L321.0,586.7L322.5,585.4L324.4,586.1L328.2,584.0L330.3,585.8L333.9,586.9L334.6,588.9L330.8,589.1L328.5,591.1L327.3,594.5L329.1,596.7L328.4,601.0L326.7,603.8L324.2,605.9L324.0,607.4L321.7,610.7L318.9,609.9L317.3,610.3L316.9,614.2L313.1,614.4L311.1,612.7L306.6,614.8L302.9,615.1L301.6,616.0L298.6,613.9L296.7,611.4L294.6,611.5L294.0,612.7L294.3,615.5L291.2,618.1L286.4,623.7L285.8,622.1L287.6,616.7L285.4,614.1L283.1,615.6L281.5,618.1L277.3,617.6L276.2,614.1L276.9,612.8L273.0,610.8L273.8,608.5L273.4,605.7L271.3,605.5L267.3,604.1L265.2,604.4L260.8,603.9L259.0,602.4L262.9,600.3L262.9,594.8L261.7,592.0L259.7,592.2L259.3,589.3L257.4,588.6L255.7,586.8L255.5,582.9L253.8,580.3L251.3,582.7L247.3,583.4L246.9,579.5L245.8,577.9L245.7,575.8L244.2,575.1L246.0,571.0L248.1,569.6L246.1,567.1L247.3,563.6L248.5,561.3L251.9,562.3L255.9,561.4L258.7,562.1L258.2,559.1L258.8,557.6L258.1,555.6L259.1,551.7L258.5,550.6L259.3,547.8L258.3,544.4L258.7,542.7L257.6,540.4L255.1,537.7L253.5,537.1L253.7,534.3L254.8,532.9L259.0,532.1L261.5,533.0L263.7,529.4L266.6,525.9L267.6,526.4L271.0,526.1L272.5,524.8L273.0,521.2L273.9,519.6L275.5,519.5L276.9,520.8L278.4,519.5L277.4,515.9L276.2,515.6L276.1,511.9L277.6,511.5L277.7,508.8L275.3,507.0L276.2,505.7L275.7,503.8L272.7,498.1L272.4,496.3L269.2,496.5L266.2,491.8L267.3,490.0L273.9,489.2L273.8,486.2L275.5,485.4ZM299.4,609.1L299.4,610.8L301.5,611.8L303.3,610.1L299.4,609.1Z","c":[285.7,561.9]},"Cajamarca":{"d":"M79.1,279.5L80.1,278.5L79.6,274.5L81.5,272.8L87.1,269.5L86.3,266.5L83.4,266.3L82.8,265.3L80.2,265.5L77.4,260.4L75.9,260.1L74.8,257.6L75.2,256.5L74.0,254.3L75.2,250.9L77.9,250.6L79.2,249.0L81.9,247.5L81.1,244.3L83.0,240.7L81.4,238.6L75.3,237.3L78.7,234.2L76.5,230.1L76.0,228.4L77.0,222.7L76.1,219.9L81.1,219.2L80.1,216.8L78.9,211.1L77.7,210.0L78.1,207.8L76.9,206.1L80.2,202.9L82.2,198.5L83.6,197.1L88.9,197.3L91.4,199.0L92.9,194.3L96.0,194.1L96.1,190.8L95.3,190.1L96.5,187.0L98.2,184.7L99.6,184.0L103.4,183.4L106.1,184.8L105.9,187.9L107.6,189.4L105.8,196.9L106.9,198.5L105.4,201.2L103.7,202.6L103.3,205.6L104.3,209.2L107.5,210.9L110.8,214.4L111.0,216.6L109.3,218.4L107.4,222.7L104.3,226.7L103.2,231.7L105.2,236.7L107.1,239.2L108.0,241.5L110.8,241.3L114.0,245.1L118.1,251.2L118.1,252.5L121.2,254.3L123.8,256.7L125.9,259.5L127.1,264.2L129.0,265.5L130.7,271.4L131.3,277.3L135.3,285.1L136.0,287.3L138.0,290.9L138.7,294.2L140.3,295.2L141.5,297.1L137.4,299.0L136.4,301.9L131.4,305.6L128.1,306.3L126.7,304.6L122.4,308.8L120.6,308.6L119.4,306.3L118.3,306.4L116.2,303.7L117.2,301.4L117.1,298.5L114.9,297.9L111.9,300.7L106.7,300.4L105.7,299.6L106.5,296.3L105.2,295.0L101.3,294.5L98.1,296.0L96.3,297.8L96.0,300.0L94.0,302.4L93.4,304.8L92.2,304.9L90.2,302.5L89.3,297.4L85.8,296.1L84.4,294.3L81.7,293.7L80.3,292.4L78.2,291.9L80.7,289.5L81.3,286.2L79.8,284.3L79.1,279.5Z","c":[101.9,255.6]},"Callao":{"d":"M163.4,471.6L165.8,471.3L167.2,474.5L166.1,476.7L167.5,479.9L166.4,481.6L164.8,481.1L165.5,477.5L164.6,473.4L163.4,471.6Z","c":[165.8,476.2]},"Cusco":{"d":"M349.4,584.9L349.8,582.7L348.2,580.5L351.1,577.6L352.5,577.7L353.9,575.9L355.5,576.1L358.2,574.6L358.6,572.4L360.6,571.0L364.8,566.6L364.3,565.4L365.8,563.6L365.3,561.5L366.0,559.0L365.8,555.7L364.9,554.7L362.7,549.8L358.9,546.7L356.2,546.6L352.2,544.8L351.4,542.7L345.8,540.5L342.9,540.1L342.1,539.0L338.6,537.8L336.7,535.5L333.0,535.1L332.7,534.1L329.7,534.1L328.0,535.5L324.5,536.4L320.2,535.2L317.2,533.3L314.8,530.4L311.9,523.8L310.9,522.8L309.7,519.8L308.0,518.1L307.9,514.4L305.3,512.2L303.9,509.1L299.9,504.1L299.0,504.8L297.0,503.0L295.9,499.7L293.6,494.7L290.5,491.9L289.9,488.2L292.1,487.5L295.3,488.0L296.9,487.3L299.5,489.1L303.4,493.6L305.3,493.5L305.9,489.5L310.0,487.3L311.0,484.9L314.3,483.9L312.5,481.1L312.9,479.3L311.3,478.0L311.2,476.2L309.2,473.6L305.8,471.9L305.9,467.8L304.6,464.9L306.5,462.1L310.8,459.7L309.6,457.3L312.0,453.8L315.5,450.9L318.4,451.0L320.5,450.1L323.1,450.2L327.5,449.0L329.0,446.4L329.8,449.0L331.0,449.7L330.5,451.7L332.6,452.8L336.7,453.8L338.9,452.4L340.1,453.7L343.9,455.6L346.9,455.9L349.1,454.0L353.1,451.8L355.9,450.7L358.6,452.3L358.2,453.9L356.5,455.8L355.6,462.3L351.1,466.8L353.4,469.9L352.6,471.5L354.9,472.7L354.3,474.1L354.7,477.2L356.8,477.5L357.8,478.7L357.4,480.6L361.2,480.9L364.3,481.9L364.6,484.2L363.8,488.0L366.7,489.1L369.1,491.3L369.0,494.4L365.6,496.1L365.2,498.9L366.8,499.5L368.7,501.7L369.7,504.7L368.9,505.8L372.7,507.7L375.5,508.3L378.0,510.3L380.0,508.0L383.8,506.5L385.7,506.8L389.7,511.5L391.1,514.2L393.5,513.8L395.6,516.1L398.0,517.3L400.6,517.8L400.8,522.2L402.7,527.8L405.8,529.2L408.5,525.2L410.6,522.9L413.7,521.1L417.0,522.8L420.9,522.0L423.7,522.6L425.2,524.6L428.6,524.9L431.6,526.2L430.3,528.8L431.4,531.0L431.1,533.3L429.5,534.2L429.1,536.4L425.8,539.5L425.5,541.4L422.6,542.8L421.1,544.7L418.7,545.0L417.9,548.0L419.3,550.6L418.5,551.6L416.6,551.0L414.1,552.8L414.1,556.0L412.9,559.5L415.5,561.3L415.0,563.4L412.7,565.2L411.4,567.6L412.2,569.3L410.9,571.6L408.9,572.9L408.0,574.7L408.9,576.3L407.6,578.7L407.4,581.4L403.0,585.1L405.4,588.6L406.9,588.1L408.4,589.0L407.7,591.6L408.1,596.3L407.3,597.3L408.4,605.5L408.9,607.1L408.0,608.4L409.3,610.1L407.0,612.2L405.9,614.7L404.6,616.4L400.6,615.4L401.5,613.0L400.9,610.0L399.5,608.3L401.1,606.8L400.3,605.0L401.8,603.3L399.3,601.3L397.2,601.5L395.0,603.3L392.8,601.6L390.5,598.4L387.5,597.5L388.3,600.8L387.3,601.6L385.0,600.9L384.3,603.5L382.4,604.0L381.1,602.1L375.8,601.2L377.2,598.9L378.0,596.1L376.0,594.3L373.8,594.0L372.3,590.1L371.0,590.1L369.6,587.6L370.3,585.9L368.5,583.8L366.4,586.2L366.7,590.9L366.2,593.5L362.9,591.7L362.3,589.6L358.1,590.6L355.6,591.8L352.0,591.5L349.4,589.5L348.8,587.0L349.4,584.9ZM397.8,577.8L400.8,579.4L401.3,578.5L397.7,576.0L397.8,577.8Z","c":[361.4,526.0]},"Huancavelica":{"d":"M247.3,563.6L245.4,559.8L243.1,561.4L239.5,560.2L240.5,558.7L236.5,559.1L232.5,555.0L228.1,554.0L227.4,552.1L228.9,551.2L228.3,549.7L229.3,546.3L230.5,544.5L229.4,543.1L230.8,539.5L231.3,535.7L229.8,533.1L228.4,534.7L226.6,534.6L222.5,536.1L221.6,535.1L217.9,534.5L218.5,532.2L221.8,530.0L221.8,525.9L222.3,524.4L221.3,522.9L222.2,521.5L224.9,520.7L225.4,517.1L224.6,515.1L225.5,513.1L228.7,511.4L229.6,509.5L226.9,507.1L227.9,505.7L226.8,504.1L228.4,503.3L230.3,504.4L233.2,503.6L235.4,500.0L238.7,497.2L241.2,497.0L241.2,494.3L244.1,492.1L246.8,487.9L247.7,485.3L246.7,480.9L247.8,478.9L252.4,479.4L256.1,481.3L259.6,480.1L260.8,480.8L263.1,478.3L264.5,477.9L271.1,479.8L272.6,482.2L275.2,484.4L275.5,485.4L273.8,486.2L273.9,489.2L267.3,490.0L266.2,491.8L269.2,496.5L272.4,496.3L272.7,498.1L275.7,503.8L276.2,505.7L275.3,507.0L277.7,508.8L277.6,511.5L276.1,511.9L276.2,515.6L277.4,515.9L278.4,519.5L276.9,520.8L275.5,519.5L273.9,519.6L273.0,521.2L272.5,524.8L271.0,526.1L267.6,526.4L266.6,525.9L263.7,529.4L261.5,533.0L259.0,532.1L254.8,532.9L253.7,534.3L253.5,537.1L255.1,537.7L257.6,540.4L258.7,542.7L258.3,544.4L259.3,547.8L258.5,550.6L259.1,551.7L258.1,555.6L258.8,557.6L258.2,559.1L258.7,562.1L255.9,561.4L251.9,562.3L248.5,561.3L247.3,563.6Z","c":[249.5,519.5]},"Huánuco":{"d":"M158.2,339.7L160.3,337.2L162.7,337.9L165.5,336.1L167.2,337.8L167.1,339.1L168.8,340.6L174.1,341.3L176.8,340.3L177.4,339.1L182.7,339.8L185.6,338.9L188.8,338.8L191.8,341.3L192.7,338.0L193.8,336.2L197.0,335.6L197.4,339.4L199.2,341.6L199.7,344.7L201.1,350.3L203.6,348.7L205.6,344.8L205.1,337.1L206.8,331.9L210.8,331.3L212.3,334.5L211.6,336.5L211.5,342.1L211.0,343.9L212.3,347.1L213.3,349.7L213.5,353.6L215.2,357.3L215.1,359.3L217.8,363.3L218.3,366.0L220.8,369.4L223.2,374.3L227.5,374.5L230.2,373.6L231.8,370.3L236.7,370.3L238.5,370.9L239.3,369.3L241.4,367.7L241.3,364.8L240.3,362.7L242.5,361.7L243.7,360.0L244.0,357.3L245.9,355.4L247.9,354.6L250.5,356.5L252.3,355.7L252.0,352.8L255.6,348.7L255.7,344.9L257.6,343.7L264.7,340.4L267.5,341.8L268.4,348.4L268.1,349.5L265.1,351.3L263.7,355.2L263.4,360.4L262.4,362.2L263.8,363.2L263.9,364.8L265.9,370.6L262.5,374.2L262.4,375.6L260.4,377.3L259.5,379.4L260.1,381.4L257.3,385.9L257.4,387.7L255.6,388.4L253.7,387.9L251.9,388.9L249.7,392.0L247.3,391.2L245.4,392.3L243.3,392.1L240.2,389.9L237.7,389.8L238.8,392.5L238.3,393.3L235.1,393.3L234.0,395.0L230.9,397.4L228.0,397.8L226.4,396.6L225.6,399.4L223.0,400.3L221.9,403.8L221.9,406.7L218.7,408.6L216.5,408.8L215.9,410.5L213.2,412.7L213.2,414.7L211.2,417.6L207.9,417.1L207.1,415.8L205.1,415.7L201.4,413.5L199.5,413.3L198.0,414.7L197.0,409.9L191.6,412.0L190.8,413.6L184.7,415.1L182.7,416.2L181.6,417.9L179.8,417.1L178.3,414.2L176.4,413.6L174.5,409.4L174.1,403.3L178.3,401.9L177.6,398.0L178.1,396.9L174.9,391.1L174.6,389.3L171.9,386.9L171.3,388.4L168.8,384.4L170.9,382.6L173.2,379.5L172.6,377.2L173.3,374.4L177.0,368.9L178.1,371.5L180.3,372.9L181.6,368.7L181.3,366.8L179.1,363.9L171.5,361.0L169.3,358.4L166.4,357.3L165.6,355.1L164.2,354.0L161.0,346.6L160.5,344.4L159.1,343.8L159.3,342.0L158.2,339.7Z","c":[208.8,375.2]},"Ica":{"d":"M259.0,602.4L256.9,604.0L254.8,604.5L252.0,606.7L250.9,610.4L249.5,611.7L247.7,615.8L246.8,616.2L242.3,613.2L243.0,610.8L240.6,609.6L241.1,607.7L238.8,605.2L235.1,604.1L232.2,598.5L229.9,597.1L229.8,595.2L227.0,593.2L222.8,591.2L218.7,588.4L215.9,587.1L213.5,584.8L212.9,581.2L211.2,579.5L211.3,577.3L208.7,575.4L207.6,573.9L205.0,572.6L205.9,570.2L204.5,567.6L201.1,564.4L198.8,564.9L199.7,559.1L199.1,555.2L197.2,555.5L194.6,554.8L195.6,550.8L198.5,550.2L198.3,552.0L199.9,553.1L202.4,544.1L202.8,541.1L202.7,535.4L200.5,531.4L202.0,530.7L204.1,526.2L209.7,521.9L212.7,518.1L218.0,520.9L219.6,519.2L221.0,520.0L223.2,519.4L225.4,517.1L224.9,520.7L222.2,521.5L221.3,522.9L222.3,524.4L221.8,525.9L221.8,530.0L218.5,532.2L217.9,534.5L221.6,535.1L222.5,536.1L226.6,534.6L228.4,534.7L229.8,533.1L231.3,535.7L230.8,539.5L229.4,543.1L230.5,544.5L229.3,546.3L228.3,549.7L228.9,551.2L227.4,552.1L228.1,554.0L232.5,555.0L236.5,559.1L240.5,558.7L239.5,560.2L243.1,561.4L245.4,559.8L247.3,563.6L246.1,567.1L248.1,569.6L246.0,571.0L244.2,575.1L245.7,575.8L245.8,577.9L246.9,579.5L247.3,583.4L251.3,582.7L253.8,580.3L255.5,582.9L255.7,586.8L257.4,588.6L259.3,589.3L259.7,592.2L261.7,592.0L262.9,594.8L262.9,600.3L259.0,602.4Z","c":[226.9,567.8]},"Junín":{"d":"M266.5,435.0L269.1,436.5L269.4,438.3L271.5,438.7L274.4,440.7L279.0,439.2L281.2,439.2L285.5,437.9L288.9,438.2L289.9,441.3L290.0,443.3L294.6,444.3L294.4,440.0L294.9,436.7L296.1,435.3L296.4,430.5L298.7,427.9L301.1,429.4L304.5,432.3L306.5,432.9L306.0,436.8L307.2,440.4L309.5,441.1L310.8,447.5L310.4,450.6L309.5,451.2L312.0,453.8L309.6,457.3L310.8,459.7L306.5,462.1L304.6,464.9L305.9,467.8L305.8,471.9L309.2,473.6L311.2,476.2L311.3,478.0L312.9,479.3L312.5,481.1L314.3,483.9L311.0,484.9L310.0,487.3L305.9,489.5L305.3,493.5L303.4,493.6L300.6,489.2L296.9,487.3L295.3,488.0L292.1,487.5L289.9,488.2L285.2,489.9L284.3,491.8L281.7,491.0L278.4,488.0L276.4,487.7L275.5,485.4L275.2,484.4L272.6,482.2L271.1,479.8L264.5,477.9L263.1,478.3L260.8,480.8L259.6,480.1L256.1,481.3L252.4,479.4L247.8,478.9L246.7,480.9L247.7,485.3L246.8,487.9L244.1,492.1L241.2,494.3L241.2,497.0L238.7,497.2L235.4,500.0L233.2,503.6L230.3,504.4L228.4,503.3L226.8,504.1L227.1,501.0L228.5,499.2L227.7,496.7L227.4,491.9L223.5,486.2L224.5,483.0L222.3,480.2L219.4,480.8L217.1,479.1L213.1,477.8L209.6,477.8L208.1,476.4L208.2,474.2L204.8,469.7L202.2,467.6L202.1,464.8L202.8,462.2L201.4,461.0L198.9,462.1L195.5,458.7L195.2,456.2L193.2,452.3L191.4,450.2L190.8,446.0L189.8,443.1L190.8,442.0L194.5,441.5L197.7,442.1L198.1,443.8L199.8,444.4L200.7,440.9L199.2,435.4L200.4,435.8L200.9,436.8L203.2,440.2L205.7,442.8L209.0,441.9L209.7,440.3L207.4,437.5L205.4,437.0L206.6,434.7L208.4,433.6L210.5,431.3L213.3,433.8L215.8,433.2L216.6,433.9L218.6,431.4L220.8,430.8L222.3,431.8L226.4,430.9L227.0,428.3L230.3,428.7L231.5,429.9L230.7,432.5L231.3,434.5L233.6,432.7L237.1,433.0L239.3,431.5L240.0,429.1L242.1,427.1L244.9,427.7L246.7,425.1L249.0,425.5L250.5,428.3L251.4,427.8L253.9,429.2L256.3,429.7L257.9,431.7L259.1,431.5L261.2,432.8L263.5,433.1L264.9,434.6L266.5,435.0Z","c":[254.5,460.0]},"La Libertad":{"d":"M105.9,357.2L105.6,355.0L101.3,349.4L102.2,346.9L102.0,343.8L100.6,341.2L94.4,335.9L95.9,333.6L93.5,330.2L92.4,327.0L87.3,322.3L79.7,315.5L77.0,312.1L76.4,310.0L73.5,306.9L74.7,306.2L74.1,304.3L70.5,299.3L68.6,295.0L69.4,294.1L67.8,289.1L64.6,285.5L72.3,277.3L73.9,276.3L76.0,276.7L79.1,279.5L79.8,284.3L81.3,286.2L80.7,289.5L78.2,291.9L80.3,292.4L81.7,293.7L84.4,294.3L85.8,296.1L89.3,297.4L90.2,302.5L92.2,304.9L93.4,304.8L94.0,302.4L96.0,300.0L96.3,297.8L98.1,296.0L101.3,294.5L105.2,295.0L106.5,296.3L105.7,299.6L106.7,300.4L111.9,300.7L114.9,297.9L117.1,298.5L117.2,301.4L116.2,303.7L118.3,306.4L119.4,306.3L120.6,308.6L122.4,308.8L126.7,304.6L128.1,306.3L131.4,305.6L136.4,301.9L137.4,299.0L141.5,297.1L140.3,295.2L138.7,294.2L138.0,290.9L136.0,287.3L135.3,285.1L131.3,277.3L134.2,277.9L136.0,277.0L137.4,277.5L140.8,277.0L142.6,282.8L145.4,284.4L146.9,287.2L145.2,288.1L146.0,291.3L145.7,292.8L146.7,295.9L150.0,298.7L149.6,301.8L151.6,306.4L149.9,308.8L151.8,310.6L153.3,311.0L154.7,314.6L155.9,314.8L154.7,318.1L155.5,320.7L159.2,320.9L161.4,319.0L164.8,319.7L166.1,319.5L170.0,320.6L171.3,322.9L174.4,325.3L173.7,327.2L174.6,329.8L174.2,331.5L171.7,334.3L167.4,334.7L165.5,336.1L162.7,337.9L160.3,337.2L158.2,339.7L155.0,337.7L153.4,335.3L152.6,331.9L148.8,326.2L146.9,324.7L145.6,322.7L145.2,320.5L142.4,321.4L138.8,321.2L135.3,321.5L133.9,326.3L130.6,327.4L126.7,330.9L125.9,333.2L125.8,335.6L124.4,338.6L122.7,340.7L123.7,342.5L121.6,344.8L117.3,345.4L113.6,347.9L110.9,348.6L109.0,350.2L108.1,352.8L108.0,356.3L105.9,357.2Z","c":[116.6,315.3]},"Lambayeque":{"d":"M27.7,253.3L37.6,238.7L39.5,236.4L44.5,234.2L47.2,234.0L52.6,228.5L53.6,221.7L54.5,219.1L56.2,218.1L58.2,219.7L57.7,221.0L59.0,224.3L60.8,224.3L63.6,228.0L62.8,232.0L64.9,232.3L66.9,231.6L67.1,234.0L68.2,236.0L72.2,235.1L75.3,237.3L81.4,238.6L83.0,240.7L81.1,244.3L81.9,247.5L79.2,249.0L77.9,250.6L75.2,250.9L74.0,254.3L75.2,256.5L74.8,257.6L75.9,260.1L77.4,260.4L80.2,265.5L82.8,265.3L83.4,266.3L86.3,266.5L87.1,269.5L81.5,272.8L79.6,274.5L80.1,278.5L79.1,279.5L76.0,276.7L73.9,276.3L72.3,277.3L64.6,285.5L64.9,283.5L62.7,280.8L55.1,273.4L54.8,271.5L52.9,268.3L49.4,265.5L45.4,262.7L41.0,260.2L27.7,253.3Z","c":[59.3,252.6]},"Lima":{"d":"M174.5,409.4L176.4,413.6L178.3,414.2L179.8,417.1L181.6,417.9L182.5,422.2L184.3,424.3L184.2,426.0L185.2,429.8L187.3,433.1L187.9,437.1L187.3,438.9L189.2,439.9L190.8,442.0L189.8,443.1L190.8,446.0L191.4,450.2L193.2,452.3L195.2,456.2L195.5,458.7L198.9,462.1L201.4,461.0L202.8,462.2L202.1,464.8L202.2,467.6L204.8,469.7L208.2,474.2L208.1,476.4L209.6,477.8L213.1,477.8L217.1,479.1L219.4,480.8L222.3,480.2L224.5,483.0L223.5,486.2L227.4,491.9L227.7,496.7L228.5,499.2L227.1,501.0L226.8,504.1L227.9,505.7L226.9,507.1L229.6,509.5L228.7,511.4L225.5,513.1L224.6,515.1L225.4,517.1L223.2,519.4L221.0,520.0L219.6,519.2L218.0,520.9L212.7,518.1L209.7,521.9L204.1,526.2L202.0,530.7L200.5,531.4L193.1,522.1L190.9,519.7L189.9,516.5L190.2,515.5L189.3,512.0L185.1,508.2L183.7,503.6L180.7,500.0L178.7,498.8L179.6,496.0L179.5,494.2L177.2,491.2L173.3,488.5L169.3,486.6L169.5,483.8L166.4,481.6L167.5,479.9L166.1,476.7L167.2,474.5L165.8,471.3L163.4,471.6L164.1,468.0L162.2,464.0L159.7,462.0L158.7,459.0L156.1,456.6L151.1,453.5L145.4,450.6L145.4,447.0L147.4,445.7L145.8,440.6L144.6,439.0L144.8,436.3L141.2,431.2L138.8,426.5L135.8,422.9L137.9,421.2L140.3,421.3L140.3,419.0L139.3,417.8L140.8,415.7L141.0,411.3L143.4,411.3L147.2,413.7L143.8,415.7L141.7,421.0L145.3,419.6L145.5,422.3L148.0,421.8L147.6,424.3L148.0,427.6L151.2,428.3L154.4,427.7L155.2,424.9L158.5,421.2L160.8,420.3L163.2,420.5L163.9,417.0L166.4,414.6L167.9,412.0L169.8,411.6L170.5,409.8L172.1,410.7L174.5,409.4Z","c":[185.5,469.9]},"Loreto":{"d":"M289.8,299.8L287.8,297.9L287.5,296.4L283.6,294.3L282.0,292.8L278.9,292.2L276.6,292.5L270.9,290.4L269.3,289.1L268.0,290.2L266.2,294.9L264.8,295.9L263.7,298.5L263.7,301.0L266.6,305.2L266.1,306.4L267.1,308.4L268.8,309.5L266.6,311.1L264.3,316.1L260.4,317.7L258.7,319.9L253.7,321.7L250.4,317.2L248.3,316.5L244.0,317.6L242.4,319.1L241.2,323.5L240.0,324.7L238.3,323.5L234.8,324.0L232.7,325.1L231.1,328.5L229.8,330.0L229.8,332.4L232.5,334.2L232.3,335.9L228.1,337.1L226.0,334.9L224.1,334.9L221.8,336.0L221.4,338.0L218.9,338.2L218.9,340.4L216.8,344.6L214.5,344.9L212.3,347.1L211.0,343.9L211.5,342.1L211.6,336.5L212.3,334.5L210.8,331.3L212.8,330.9L213.6,328.6L212.5,325.9L212.2,322.4L213.5,321.3L216.3,320.8L216.9,317.4L215.8,315.3L211.5,316.9L208.5,310.2L206.2,307.4L206.6,300.9L203.6,298.2L201.7,294.6L202.5,291.8L201.8,290.9L203.6,289.2L204.5,286.6L207.8,284.9L209.8,281.6L209.8,278.3L208.2,276.2L209.8,274.2L208.2,270.9L211.6,270.0L216.4,270.4L219.3,272.6L222.1,273.2L223.3,271.5L224.7,272.2L229.5,269.9L229.9,264.1L229.6,258.1L228.0,252.4L230.3,249.1L230.4,246.6L228.9,245.1L228.6,242.3L227.1,238.6L225.4,239.4L224.8,241.7L222.8,242.3L221.4,244.0L217.5,242.5L216.7,244.0L212.9,243.9L211.6,242.3L208.9,242.4L205.2,245.5L201.4,245.1L199.4,242.6L197.6,241.9L195.5,237.4L193.9,236.5L188.6,239.4L185.0,238.6L180.7,238.6L180.7,236.6L177.9,232.9L177.2,228.3L175.2,228.4L172.3,226.7L170.9,225.1L169.1,225.4L161.6,222.3L157.4,222.6L156.2,221.2L154.6,222.0L152.5,221.8L150.3,217.1L148.7,215.5L147.8,216.9L144.3,214.8L143.8,212.0L143.4,209.2L141.6,207.0L143.3,205.0L140.2,202.3L138.3,201.7L138.2,199.7L140.8,196.5L140.8,194.8L139.4,192.5L139.4,189.0L140.3,187.2L144.2,183.6L144.9,179.2L147.6,177.5L148.4,173.4L147.7,168.5L149.1,162.9L149.5,159.6L149.4,156.2L148.3,153.4L145.0,149.6L146.5,146.8L146.4,143.8L140.7,136.8L140.1,134.8L140.0,125.9L138.9,117.9L164.6,109.2L185.3,102.0L208.4,83.6L226.7,60.3L228.4,57.8L233.7,38.5L234.4,35.6L237.0,37.4L241.1,37.3L240.9,33.1L238.9,27.9L240.4,24.3L240.7,20.5L238.7,18.4L237.3,18.2L234.4,15.8L231.4,11.2L230.6,7.9L228.7,5.7L225.6,6.1L225.6,3.0L227.4,3.7L229.7,3.2L233.7,5.3L237.6,4.7L239.4,3.6L242.4,0.0L246.6,1.8L249.0,4.3L250.7,4.6L252.3,7.2L255.6,7.8L257.0,6.1L259.0,7.4L260.3,10.2L260.3,12.0L262.7,13.4L266.4,14.3L268.2,17.1L272.5,18.6L274.7,22.9L274.4,24.6L278.5,32.3L278.1,34.5L278.6,37.8L280.3,38.8L282.5,38.7L285.4,40.4L287.3,40.2L288.5,41.9L291.2,43.7L292.5,43.3L294.7,47.7L301.7,48.0L304.1,48.9L304.4,51.1L307.6,55.9L307.7,57.0L309.7,59.3L308.8,63.2L307.4,66.0L308.8,67.7L310.4,67.9L311.8,70.1L313.4,69.4L316.5,69.8L320.5,69.0L322.6,72.8L324.1,73.4L323.9,79.1L324.8,80.1L323.4,85.8L321.9,87.4L323.9,89.8L325.9,91.1L325.9,92.7L330.0,92.2L330.3,94.1L332.9,95.8L334.4,95.9L337.7,93.9L340.7,94.7L344.5,93.1L347.5,95.5L349.6,95.3L353.0,96.7L353.5,98.0L356.5,97.2L357.8,95.7L359.9,96.3L362.2,95.1L366.1,91.9L367.6,93.2L369.5,92.7L370.9,90.8L372.6,90.9L374.6,86.1L375.9,86.6L378.2,84.1L379.5,87.6L381.3,86.5L383.6,87.7L389.2,89.3L392.8,94.0L395.0,93.4L395.5,92.2L398.3,92.0L400.0,93.6L402.2,89.9L405.4,89.3L407.5,86.8L410.3,88.6L412.2,87.3L413.9,90.1L416.2,90.2L417.3,91.6L420.6,92.6L422.2,94.4L421.7,97.1L423.3,97.8L428.2,96.7L429.7,99.3L432.8,98.0L433.7,101.6L436.1,100.4L437.8,101.4L438.3,104.2L442.8,104.8L444.3,105.8L444.5,108.8L441.4,114.1L427.1,137.0L418.9,150.1L422.5,152.1L424.3,151.7L427.3,153.5L433.3,150.4L436.0,152.0L437.2,154.1L439.1,154.8L440.0,157.2L442.8,160.8L444.6,161.9L445.6,163.8L448.7,166.8L448.9,169.6L447.9,171.8L446.2,172.6L444.1,171.4L443.8,169.9L440.7,169.5L440.8,171.2L439.8,172.7L437.2,169.8L435.9,167.6L435.3,164.8L429.8,163.7L428.5,165.5L426.2,163.9L424.9,165.3L422.6,166.2L421.5,163.5L419.5,165.9L417.4,164.9L414.7,166.3L414.2,168.4L412.8,168.7L412.3,171.3L409.5,173.5L404.5,174.2L403.3,173.5L400.1,174.4L399.1,173.5L397.1,175.6L394.0,176.0L392.2,175.5L390.9,177.0L388.6,175.9L386.3,177.0L385.0,178.8L383.2,179.6L381.9,178.6L379.6,178.9L378.3,177.7L373.3,179.5L371.2,180.9L368.7,183.6L366.5,183.9L363.9,186.7L360.7,188.2L357.4,190.3L355.2,190.5L353.1,191.9L351.6,194.5L347.5,195.8L344.1,198.4L344.1,199.6L342.2,201.0L339.3,200.7L338.0,202.2L333.0,205.1L333.9,207.8L333.8,210.1L332.7,211.5L331.5,214.8L330.2,217.0L330.5,220.4L329.6,223.0L330.2,224.7L326.3,230.3L322.6,233.2L321.2,236.5L321.2,238.6L319.8,239.3L318.7,243.8L322.4,251.5L324.2,256.3L322.7,259.0L320.7,261.2L315.6,262.4L313.1,264.1L308.0,265.5L306.4,267.3L304.8,267.7L300.5,272.1L298.5,276.1L298.5,281.0L297.1,283.0L300.3,287.6L301.1,290.4L300.1,292.1L296.3,292.0L294.6,294.0L292.1,292.9L291.4,294.2L292.6,297.5L291.4,299.8L289.8,299.8Z","c":[272.3,163.2]},"Madre de Dios":{"d":"M431.6,526.2L428.6,524.9L425.2,524.6L423.7,522.6L420.9,522.0L417.0,522.8L413.7,521.1L410.6,522.9L408.5,525.2L405.8,529.2L402.7,527.8L400.8,522.2L400.6,517.8L398.0,517.3L395.6,516.1L393.5,513.8L391.1,514.2L389.7,511.5L385.7,506.8L383.8,506.5L380.0,508.0L378.0,510.3L375.5,508.3L372.7,507.7L368.9,505.8L369.7,504.7L368.7,501.7L366.8,499.5L365.2,498.9L365.6,496.1L369.0,494.4L369.1,491.3L366.7,489.1L363.8,488.0L364.6,484.2L364.3,481.9L361.2,480.9L357.4,480.6L357.8,478.7L356.8,477.5L354.7,477.2L354.3,474.1L354.9,472.7L352.6,471.5L353.4,469.9L351.1,466.8L355.6,462.3L356.5,455.8L358.2,453.9L358.6,452.3L360.2,448.9L360.1,446.7L363.2,442.7L360.7,441.1L360.8,438.9L362.9,438.1L366.0,438.9L367.4,438.0L374.5,438.5L379.1,438.3L386.5,436.6L393.4,436.5L396.7,432.4L397.3,429.8L398.7,428.9L398.4,426.0L399.7,421.7L402.4,418.6L406.5,417.6L408.8,413.7L408.8,412.1L410.5,411.6L412.2,409.8L414.7,408.7L419.1,404.8L421.3,401.7L420.4,399.9L420.6,397.4L422.7,395.1L422.7,418.5L422.7,438.5L426.1,435.8L429.0,438.3L430.2,440.0L434.8,441.3L437.3,440.4L439.1,440.6L441.3,439.7L443.2,438.1L445.8,437.6L448.7,435.6L450.8,435.3L455.3,435.6L457.2,437.1L461.3,436.8L462.8,436.1L464.2,437.1L477.4,458.5L482.3,465.7L487.6,475.1L500.0,498.4L498.5,501.8L496.9,502.9L497.5,504.9L496.6,507.5L492.9,511.0L492.8,512.8L491.4,513.9L491.4,518.6L474.1,526.3L460.8,532.1L447.9,528.3L445.6,527.4L431.0,523.0L431.6,526.2Z","c":[425.9,477.7]},"Moquegua":{"d":"M402.0,711.3L399.4,709.2L392.8,705.7L394.0,703.9L393.3,702.0L392.8,697.5L391.9,694.0L388.1,689.9L390.1,688.5L395.5,682.2L394.1,679.3L392.3,679.3L390.1,673.1L389.9,670.7L390.7,668.1L392.9,667.3L394.5,668.6L396.1,667.5L396.5,663.1L397.8,660.5L397.8,657.1L402.0,657.5L404.4,656.8L407.8,658.3L409.3,656.9L408.4,655.0L408.0,650.9L409.2,650.8L413.2,648.1L412.4,642.2L413.1,640.7L414.9,640.6L414.6,637.6L416.6,639.1L419.1,639.7L421.5,638.1L424.8,638.0L426.2,639.5L430.7,641.5L431.1,644.4L432.7,646.8L433.6,651.4L431.8,653.9L433.8,654.9L435.0,657.6L437.9,658.7L440.0,660.9L440.3,662.8L443.5,664.7L445.1,663.6L446.9,664.7L447.1,667.7L444.9,669.0L443.3,671.0L443.2,674.1L441.1,676.0L437.2,676.6L436.7,674.5L438.8,670.8L434.8,669.4L429.5,672.1L428.6,676.3L429.2,681.7L427.5,682.1L426.1,685.2L422.9,687.0L419.9,687.5L418.7,689.4L417.2,693.7L417.9,694.5L412.2,700.7L410.9,706.0L407.7,705.6L403.4,708.7L402.0,711.3Z","c":[413.8,672.9]},"Pasco":{"d":"M199.2,435.4L200.7,440.9L199.8,444.4L198.1,443.8L197.7,442.1L194.5,441.5L190.8,442.0L189.2,439.9L187.3,438.9L187.9,437.1L187.3,433.1L185.2,429.8L184.2,426.0L184.3,424.3L182.5,422.2L181.6,417.9L182.7,416.2L184.7,415.1L190.8,413.6L191.6,412.0L197.0,409.9L198.0,414.7L199.5,413.3L201.4,413.5L205.1,415.7L207.1,415.8L207.9,417.1L211.2,417.6L213.2,414.7L213.2,412.7L215.9,410.5L216.5,408.8L218.7,408.6L221.9,406.7L221.9,403.8L223.0,400.3L225.6,399.4L226.4,396.6L228.0,397.8L230.9,397.4L234.0,395.0L235.1,393.3L238.3,393.3L238.8,392.5L237.7,389.8L240.2,389.9L243.3,392.1L245.4,392.3L247.3,391.2L249.7,392.0L251.9,388.9L253.7,387.9L255.6,388.4L257.4,387.7L257.3,385.9L260.1,381.4L259.5,379.4L260.4,377.3L262.4,375.6L266.0,378.3L266.4,381.3L269.5,382.2L270.0,386.6L271.5,389.7L271.3,393.3L272.8,394.5L272.4,398.0L273.3,401.3L274.6,403.0L276.2,402.8L277.1,405.0L280.0,405.9L280.3,409.6L278.2,413.4L279.0,416.6L280.5,416.5L281.9,418.6L283.9,422.7L282.6,424.0L280.0,423.9L278.0,425.5L276.6,427.5L274.3,428.8L273.9,430.9L270.0,431.9L269.0,433.7L266.5,435.0L264.9,434.6L263.5,433.1L261.2,432.8L259.1,431.5L257.9,431.7L256.3,429.7L253.9,429.2L251.4,427.8L250.5,428.3L249.0,425.5L246.7,425.1L244.9,427.7L242.1,427.1L240.0,429.1L239.3,431.5L237.1,433.0L233.6,432.7L231.3,434.5L230.7,432.5L231.5,429.9L230.3,428.7L227.0,428.3L226.4,430.9L222.3,431.8L220.8,430.8L218.6,431.4L216.6,433.9L215.8,433.2L213.3,433.8L210.5,431.3L208.4,433.6L206.6,434.7L205.4,437.0L202.7,436.9L201.9,435.2L200.4,435.4L199.2,435.4Z","c":[237.8,414.3]},"Piura":{"d":"M83.6,197.1L82.2,198.5L80.2,202.9L76.9,206.1L78.1,207.8L77.7,210.0L78.9,211.1L80.1,216.8L81.1,219.2L76.1,219.9L77.0,222.7L76.0,228.4L76.5,230.1L78.7,234.2L75.3,237.3L72.2,235.1L68.2,236.0L67.1,234.0L66.9,231.6L64.9,232.3L62.8,232.0L63.6,228.0L60.8,224.3L59.0,224.3L57.7,221.0L58.2,219.7L56.2,218.1L54.5,219.1L53.6,221.7L52.6,228.5L47.2,234.0L44.5,234.2L39.5,236.4L37.6,238.7L27.7,253.3L20.9,250.0L16.4,246.1L9.3,241.7L7.1,237.7L7.1,234.0L9.1,232.0L10.2,229.9L12.1,231.7L15.2,232.3L17.2,230.9L18.4,228.4L18.8,223.9L17.0,218.9L14.6,215.4L10.9,211.7L8.7,211.0L7.5,209.0L5.3,206.9L7.7,201.3L9.4,201.7L10.6,200.0L9.5,197.2L6.0,192.7L0.0,185.7L0.7,184.9L1.8,179.5L1.0,177.8L2.4,175.8L3.1,172.7L2.7,170.9L3.6,168.5L6.3,166.9L9.0,163.6L11.3,162.0L14.1,163.5L14.7,165.4L17.6,166.2L20.7,165.5L24.8,166.0L27.8,167.7L30.3,165.4L31.7,162.8L33.2,161.8L34.7,163.5L35.3,166.3L37.7,166.4L39.4,167.4L37.9,169.7L35.6,171.9L34.5,173.9L35.1,176.7L37.0,177.9L41.0,175.8L44.7,172.3L45.3,170.6L48.3,170.1L52.7,173.7L55.5,173.9L57.5,175.0L58.7,177.2L60.5,178.2L63.9,177.3L66.0,175.8L67.1,176.0L69.6,179.0L72.2,179.3L72.9,181.4L72.6,183.5L76.4,191.7L79.2,193.9L81.5,197.2L83.6,197.1Z","c":[39.2,203.7]},"Puno":{"d":"M489.6,654.6L489.6,647.8L493.7,651.3L489.6,654.6ZM461.1,690.0L459.0,689.5L457.5,690.3L455.3,687.9L452.8,688.2L445.3,683.6L445.1,680.7L443.0,678.7L441.1,676.0L443.2,674.1L443.3,671.0L444.9,669.0L447.1,667.7L446.9,664.7L445.1,663.6L443.5,664.7L440.3,662.8L440.0,660.9L437.9,658.7L435.0,657.6L433.8,654.9L431.8,653.9L433.6,651.4L432.7,646.8L431.1,644.4L430.7,641.5L426.2,639.5L424.8,638.0L421.5,638.1L419.1,639.7L416.6,639.1L414.6,637.6L413.6,635.4L410.0,629.9L411.4,627.0L410.7,624.2L407.1,621.0L406.9,618.0L407.7,616.7L405.9,614.7L407.0,612.2L409.3,610.1L408.0,608.4L408.9,607.1L408.4,605.5L407.3,597.3L408.1,596.3L407.7,591.6L408.4,589.0L406.9,588.1L405.4,588.6L403.0,585.1L407.4,581.4L407.6,578.7L408.9,576.3L408.0,574.7L408.9,572.9L410.9,571.6L412.2,569.3L411.4,567.6L412.7,565.2L415.0,563.4L415.5,561.3L412.9,559.5L414.1,556.0L414.1,552.8L416.6,551.0L418.5,551.6L419.3,550.6L417.9,548.0L418.7,545.0L421.1,544.7L422.6,542.8L425.5,541.4L425.8,539.5L429.1,536.4L429.5,534.2L431.1,533.3L431.4,531.0L430.3,528.8L431.6,526.2L431.0,523.0L445.6,527.4L447.9,528.3L460.8,532.1L474.1,526.3L491.4,518.6L492.1,520.9L491.3,523.1L492.5,528.3L489.6,537.9L486.6,544.5L484.0,544.7L483.8,546.0L487.3,548.8L489.6,551.0L488.3,553.6L487.1,554.2L487.2,557.6L488.8,559.5L490.5,560.1L492.0,565.0L493.2,567.2L487.9,567.3L485.8,571.1L486.9,573.5L485.1,575.5L483.1,576.5L480.8,579.0L480.4,581.7L477.7,581.7L477.3,584.7L476.2,585.8L477.5,588.1L474.5,589.1L472.4,590.5L472.8,593.8L472.1,596.4L474.6,600.4L475.1,602.3L477.1,603.3L481.2,607.8L477.9,611.2L476.6,613.3L476.4,617.2L474.9,615.9L473.3,620.0L469.2,617.8L467.6,615.6L463.9,612.6L462.8,613.2L461.0,611.3L460.9,609.8L458.8,607.8L457.6,608.0L455.9,610.8L454.2,610.0L451.1,610.3L450.8,612.7L449.2,614.3L450.0,616.7L452.4,620.7L456.0,624.8L456.7,627.6L455.0,627.5L453.0,625.9L453.0,624.1L451.1,622.2L448.4,626.5L446.2,626.1L445.6,627.4L446.0,629.9L448.4,632.5L451.5,634.1L453.9,629.9L456.1,631.7L456.0,634.3L458.2,635.1L459.9,636.7L464.2,636.8L468.5,638.2L469.7,640.3L466.5,644.5L466.9,646.8L469.5,645.6L472.2,648.5L476.9,649.3L480.6,648.6L484.2,646.4L487.3,648.7L484.4,649.8L485.5,651.7L485.5,654.6L483.1,657.0L483.0,658.4L484.9,660.9L485.1,662.7L486.5,664.7L484.6,666.0L479.7,667.6L477.7,671.9L474.3,675.1L472.8,677.9L470.8,679.4L471.6,681.4L468.6,682.4L466.2,684.3L464.4,684.8L461.1,690.0ZM451.3,606.7L449.6,604.6L448.6,605.4L446.1,604.6L445.1,602.9L442.3,605.2L444.5,606.2L448.8,607.3L451.3,606.7Z","c":[448.9,595.8]},"San Martín":{"d":"M210.8,331.3L206.8,331.9L205.1,337.1L205.6,344.8L203.6,348.7L201.1,350.3L199.7,344.7L199.2,341.6L197.4,339.4L197.0,335.6L193.8,336.2L192.7,338.0L191.8,341.3L188.8,338.8L185.6,338.9L182.7,339.8L177.4,339.1L176.8,340.3L174.1,341.3L168.8,340.6L167.1,339.1L167.2,337.8L165.5,336.1L167.4,334.7L171.7,334.3L174.2,331.5L174.6,329.8L173.7,327.2L174.4,325.3L171.3,322.9L170.0,320.6L166.1,319.5L164.8,319.7L161.4,319.0L159.2,320.9L155.5,320.7L154.7,318.1L155.9,314.8L154.7,314.6L153.3,311.0L151.8,310.6L149.9,308.8L151.6,306.4L149.6,301.8L150.0,298.7L146.7,295.9L145.7,292.8L146.0,291.3L145.2,288.1L146.9,287.2L145.4,284.4L142.6,282.8L140.8,277.0L142.2,274.2L140.7,270.8L141.3,268.5L141.3,265.1L143.4,265.6L146.6,262.9L149.3,265.5L155.7,266.4L153.5,262.7L155.2,262.6L157.5,259.4L157.9,257.2L160.0,254.7L159.4,251.7L162.0,253.7L164.0,253.7L165.5,250.6L162.9,247.7L162.0,244.3L159.6,244.1L157.1,243.0L155.1,240.0L153.6,240.9L151.9,238.5L149.7,241.0L147.3,238.8L144.4,237.7L145.0,235.9L144.0,232.8L140.6,231.2L140.2,225.9L141.7,222.7L140.5,220.0L140.4,216.0L141.4,214.7L143.3,214.9L147.8,216.9L148.7,215.5L150.3,217.1L152.5,221.8L154.6,222.0L156.2,221.2L157.4,222.6L161.6,222.3L169.1,225.4L170.9,225.1L172.3,226.7L175.2,228.4L177.2,228.3L177.9,232.9L180.7,236.6L180.7,238.6L185.0,238.6L188.6,239.4L193.9,236.5L195.5,237.4L197.6,241.9L199.4,242.6L201.4,245.1L205.2,245.5L208.9,242.4L211.6,242.3L212.9,243.9L216.7,244.0L217.5,242.5L221.4,244.0L222.8,242.3L224.8,241.7L225.4,239.4L227.1,238.6L228.6,242.3L228.9,245.1L230.4,246.6L230.3,249.1L228.0,252.4L229.6,258.1L229.9,264.1L229.9,269.1L224.7,272.2L223.3,271.5L222.1,273.2L219.3,272.6L216.4,270.4L211.6,270.0L208.2,270.9L209.8,274.2L208.2,276.2L209.8,278.3L209.8,281.6L207.8,284.9L204.5,286.6L203.6,289.2L201.8,290.9L202.5,291.8L201.7,294.6L203.6,298.2L206.6,300.9L206.2,307.4L208.5,310.2L211.5,316.9L215.8,315.3L216.9,317.4L216.3,320.8L213.5,321.3L212.2,322.4L212.5,325.9L213.6,328.6L212.8,330.9L210.8,331.3Z","c":[182.0,279.9]},"Tacna":{"d":"M461.1,690.0L463.7,690.2L467.9,693.4L467.9,698.6L460.1,704.9L455.0,704.3L454.0,705.9L454.8,709.0L455.0,713.0L456.9,716.2L456.7,717.9L454.3,723.0L452.7,725.1L448.5,729.0L444.9,729.2L441.0,731.2L435.6,730.8L432.1,732.5L427.9,729.4L420.1,724.9L414.8,720.1L412.2,719.1L411.6,717.0L407.0,713.5L403.6,713.2L402.0,711.3L403.4,708.7L407.7,705.6L410.9,706.0L412.2,700.7L417.9,694.5L417.2,693.7L418.7,689.4L419.9,687.5L422.9,687.0L426.1,685.2L427.5,682.1L429.2,681.7L428.6,676.3L429.5,672.1L434.8,669.4L438.8,670.8L436.7,674.5L437.2,676.6L441.1,676.0L443.0,678.7L445.1,680.7L445.3,683.6L452.8,688.2L455.3,687.9L457.5,690.3L459.0,689.5L461.1,690.0Z","c":[436.0,704.3]},"Tumbes":{"d":"M33.2,161.8L31.7,162.8L30.3,165.4L27.8,167.7L24.8,166.0L20.7,165.5L17.6,166.2L14.7,165.4L14.1,163.5L11.3,162.0L13.4,157.9L14.7,156.7L19.5,153.5L21.0,148.9L22.7,147.2L29.4,143.9L30.9,142.0L32.5,138.8L35.3,138.1L37.4,138.2L40.9,134.8L43.7,136.2L42.9,137.6L44.3,139.8L44.9,142.4L45.3,148.0L46.1,150.6L46.1,153.3L46.9,155.0L42.9,156.7L40.6,159.1L38.1,157.8L35.4,158.0L33.2,161.8Z","c":[30.9,152.7]},"Ucayali":{"d":"M422.7,395.1L420.6,397.4L420.4,399.9L421.3,401.7L419.0,403.9L414.7,408.7L412.2,409.8L410.5,411.6L408.8,412.1L408.8,413.7L406.5,417.6L402.4,418.6L399.7,421.7L398.4,426.0L398.7,428.9L397.3,429.8L396.7,432.4L393.4,436.5L386.5,436.6L379.1,438.3L374.5,438.5L367.4,438.0L366.0,438.9L362.9,438.1L360.8,438.9L360.7,441.1L363.2,442.7L360.1,446.7L360.2,448.9L358.6,452.3L355.9,450.7L353.1,451.8L349.1,454.0L346.9,455.9L343.9,455.6L340.1,453.7L338.9,452.4L336.7,453.8L332.6,452.8L330.5,451.7L331.0,449.7L329.8,449.0L329.0,446.4L327.5,449.0L323.1,450.2L320.5,450.1L318.4,451.0L315.5,450.9L312.0,453.8L309.5,451.2L310.4,450.6L310.8,447.5L309.5,441.1L307.2,440.4L306.0,436.8L306.5,432.9L304.5,432.3L301.1,429.4L298.7,427.9L296.4,430.5L296.1,435.3L294.9,436.7L294.4,440.0L294.6,444.3L290.0,443.3L289.9,441.3L288.9,438.2L285.5,437.9L281.2,439.2L279.0,439.2L274.4,440.7L271.5,438.7L269.4,438.3L269.1,436.5L266.5,435.0L269.0,433.7L270.0,431.9L273.9,430.9L274.3,428.8L276.6,427.5L278.0,425.5L280.0,423.9L282.6,424.0L283.9,422.7L281.9,418.6L280.5,416.5L279.0,416.6L278.2,413.4L280.3,409.6L280.0,405.9L277.1,405.0L276.2,402.8L274.6,403.0L273.3,401.3L272.4,398.0L272.8,394.5L271.3,393.3L271.5,389.7L270.0,386.6L269.5,382.2L266.4,381.3L266.0,378.3L262.4,375.6L262.5,374.2L265.9,370.6L263.9,364.8L263.8,363.2L262.4,362.2L263.4,360.4L263.7,355.2L265.1,351.3L268.1,349.5L268.4,348.4L267.5,341.8L264.7,340.4L257.6,343.7L255.7,344.9L255.6,348.7L252.0,352.8L252.3,355.7L250.5,356.5L247.9,354.6L245.9,355.4L244.0,357.3L243.7,360.0L242.5,361.7L240.3,362.7L241.3,364.8L241.4,367.7L239.3,369.3L238.5,370.9L236.7,370.3L231.8,370.3L230.2,373.6L227.5,374.5L223.2,374.3L220.8,369.4L218.3,366.0L217.8,363.3L215.1,359.3L215.2,357.3L213.5,353.6L213.3,349.7L212.3,347.1L214.5,344.9L216.8,344.6L218.9,340.4L218.9,338.2L221.4,338.0L221.8,336.0L224.1,334.9L226.0,334.9L228.1,337.1L232.3,335.9L232.5,334.2L229.8,332.4L229.8,330.0L231.1,328.5L232.7,325.1L234.8,324.0L238.3,323.5L240.0,324.7L241.2,323.5L242.4,319.1L244.0,317.6L248.3,316.5L250.4,317.2L253.7,321.7L258.7,319.9L260.4,317.7L264.3,316.1L266.6,311.1L268.8,309.5L267.1,308.4L266.1,306.4L266.6,305.2L263.7,301.0L263.7,298.5L264.8,295.9L266.2,294.9L268.0,290.2L269.3,289.1L270.9,290.4L276.6,292.5L278.9,292.2L282.0,292.8L283.6,294.3L287.5,296.4L287.8,297.9L289.8,299.8L293.5,302.6L293.0,304.0L295.5,305.3L296.9,307.0L300.4,308.2L301.9,310.5L301.8,312.8L298.3,314.9L300.7,316.9L302.2,319.0L303.3,318.7L305.5,323.5L305.1,325.1L306.3,328.3L307.8,329.4L307.1,332.4L313.8,337.3L315.5,337.5L315.0,342.6L315.9,342.9L318.7,346.1L322.0,346.4L324.1,349.9L324.1,351.2L327.1,355.1L328.5,355.1L330.6,359.6L330.9,362.2L330.0,364.2L326.0,367.6L322.4,372.7L321.1,373.0L320.7,374.9L339.7,374.9L347.1,377.8L352.0,377.6L356.9,380.2L356.6,382.6L358.3,384.8L357.8,386.9L359.5,389.6L362.0,390.4L361.6,391.7L362.1,394.7L361.2,395.7L360.9,398.4L378.4,398.5L392.7,398.5L393.9,397.1L395.7,398.1L399.9,396.1L401.2,393.3L405.5,391.1L407.5,391.2L408.5,388.9L410.4,388.1L412.7,385.1L415.4,384.1L417.3,381.2L421.0,379.0L424.7,375.7L426.6,378.2L425.6,379.9L423.6,380.4L423.3,382.8L425.2,385.3L426.1,387.5L425.7,389.1L422.8,390.7L422.7,395.1Z","c":[311.3,383.2]}}};
+const REGIONES = ["Amazonas","Áncash","Apurímac","Arequipa","Ayacucho","Cajamarca","Callao","Cusco","Huancavelica","Huánuco","Ica","Junín","La Libertad","Lambayeque","Lima","Loreto","Madre de Dios","Moquegua","Pasco","Piura","Puno","San Martín","Tacna","Tumbes","Ucayali"];
+const NAC = "Nacional / Multi-región";
+const ESTADOS = ["Planificado","En curso","Culminado","Suspendido"];
+const EST_COLOR = {"Planificado":"var(--c-plan)","En curso":"var(--c-run)","Culminado":"var(--c-ok)","Suspendido":"var(--c-stop)"};
+const EMPRESAS = ["Interbank","Interseguro","Financiera Oh!","Inkafarma","Mifarma","Farmacias Peruanas","Supermercados Peruanos","Plaza Vea","Vivanda","Promart","Oxxo","Real Plaza","NGR","Sip","Inspira/Intercorp Retail","Universidad Tecnológica del Perú (UTP)","Innova Schools","Colegios Peruanos","Peruplast","StoreCenter","Urbanova","Casa Andina","Intercorp Retail (Corporativo)","Intercorp Perú (Corporativo)","Otro"];
+const TIPOS = ["Donación en especie","Donación monetaria y/o cash card","Sensibilización y capacitación","Salud y vacunación","Centros de acopio y logística","Voluntariado","Vivienda e infraestructura"];
+const PUB_COLS = "id,empresa,nombre,descripcion,aliado,region,zona,tipo,beneficiarios,monto,cantidad,unidad,fecha_inicio,fecha_culminacion,estado,comentarios,fotos,creado,actualizado";
+
+const CFG = window.FEN_CONFIG || {};
+const S = { sb:null, demo:false, session:null, perfil:null, perfiles:[], rows:[], loaded:false, err:null,
+  f:{empresa:"",region:"",estado:"",tipo:"",aliado:"",q:"",mine:false}, metric:"monto", sort:"act", theme:"light" };
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmtN = n => (n||0).toLocaleString("es-PE",{maximumFractionDigits:0});
+const fmtS = n => "S/ " + fmtN(n);
+const fmtShort = n => n>=1e6 ? "S/ "+(n/1e6).toLocaleString("es-PE",{maximumFractionDigits:1})+" M" : n>=1e3 ? "S/ "+(n/1e3).toLocaleString("es-PE",{maximumFractionDigits:1})+" mil" : fmtS(n);
+const today = () => { const d=new Date(); d.setMinutes(d.getMinutes()-d.getTimezoneOffset()); return d.toISOString().slice(0,10); };
+const fmtDate = d => { if(!d) return ""; const [y,m,dd]=String(d).slice(0,10).split("-"); return `${dd}/${m}/${y}`; };
+const stCls = e => "st-" + String(e||"Planificado").replace(/\s+/g,"-");
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.hidden=false; clearTimeout(toast._t); toast._t=setTimeout(()=>t.hidden=true,3000); }
+
+try{ const sv=JSON.parse(localStorage.getItem("fen-ui")||"{}"); if(sv.metric) S.metric=sv.metric; if(sv.sort) S.sort=sv.sort; if(sv.theme) S.theme=sv.theme; }catch(e){}
+function saveUI(){ try{ localStorage.setItem("fen-ui",JSON.stringify({metric:S.metric,sort:S.sort,theme:S.theme})); }catch(e){} }
+function applyTheme(){ document.documentElement.setAttribute("data-fen",S.theme); const b=$("#btnTheme"); b.textContent=S.theme==="dark"?"Modo claro":"Modo nocturno"; b.setAttribute("aria-pressed",S.theme==="dark"); }
+
+/* ---------- datos ---------- */
+const fromDb = r => ({ id:r.id, empresa:r.empresa, nombre:r.nombre, descripcion:r.descripcion, aliado:r.aliado, region:r.region, zona:r.zona, tipo:r.tipo,
+  beneficiarios:r.beneficiarios==null?null:+r.beneficiarios, monto:r.monto==null?null:+r.monto, cantidad:r.cantidad, unidad:r.unidad,
+  fechaInicio:r.fecha_inicio||r.fechaInicio||"", fechaCulminacion:r.fecha_culminacion||r.fechaCulminacion||"", estado:r.estado, responsable:r.responsable,
+  comentarios:r.comentarios, fotos:r.fotos||[], actualizado:r.actualizado||"" });
+const toDb = d => ({ empresa:d.empresa, nombre:d.nombre, descripcion:d.descripcion||null, aliado:d.aliado||null, region:d.region||null, zona:d.zona||null, tipo:d.tipo||null,
+  beneficiarios:d.beneficiarios, monto:d.monto, cantidad:d.cantidad||null, unidad:d.unidad||null, fecha_inicio:d.fechaInicio||null, fecha_culminacion:d.fechaCulminacion||null,
+  estado:d.estado, responsable:d.responsable||null, comentarios:d.comentarios||null, fotos:d.fotos||[] });
+
+const isAdmin = () => !!S.perfil?.es_admin;
+const myEmpresa = () => S.perfil?.empresa || null;
+function canEditRow(r){ if(S.demo||!S.session) return false; return isAdmin() || (!!myEmpresa() && r.empresa===myEmpresa()); }
+function photoUrl(path){ if(!S.sb) return ""; return S.sb.storage.from("fotos").getPublicUrl(path).data.publicUrl; }
+
+async function loadRows(){
+  if(S.demo){ try{ const r=await fetch("datos-demo.json"); S.rows=(await r.json()).map(fromDb); }catch(e){ S.err="No se pudieron cargar los datos de demostración."; } S.loaded=true; render(); return; }
+  const { data, error } = await S.sb.from("iniciativas").select(S.session?"*":PUB_COLS).order("actualizado",{ascending:false});
+  if(error){ S.err="No se pudieron cargar las iniciativas. Recarga la página."; console.error(error); }
+  else { S.rows=data.map(fromDb); S.err=null; }
+  S.loaded=true; render();
+}
+async function loadPerfil(){
+  S.perfil=null; S.perfiles=[];
+  if(!S.session) return;
+  const { data } = await S.sb.from("perfiles").select("*").eq("id",S.session.user.id).maybeSingle();
+  S.perfil=data||null;
+  if(isAdmin()){ const r=await S.sb.from("perfiles").select("*").order("creado",{ascending:false}); S.perfiles=r.data||[]; }
+}
+let reT; function reload(){ clearTimeout(reT); reT=setTimeout(async()=>{ await loadPerfil(); await loadRows(); },400); }
+
+function matches(r, skip){
+  const f=S.f;
+  if(f.empresa && r.empresa!==f.empresa) return false;
+  if(f.region && skip!=="region" && (r.region||"Sin región")!==f.region) return false;
+  if(f.estado && r.estado!==f.estado) return false;
+  if(f.tipo && (r.tipo||"Sin tipo")!==f.tipo) return false;
+  if(f.aliado && (r.aliado||"Sin aliado")!==f.aliado) return false;
+  if(f.mine && r.empresa!==myEmpresa()) return false;
+  if(f.q){ const q=f.q.toLowerCase(); if(![r.nombre,r.descripcion,r.zona,r.responsable,r.aliado,r.empresa,r.comentarios].join(" ").toLowerCase().includes(q)) return false; }
+  return true;
+}
+function agg(rows,key){ const m=new Map(); for(const r of rows){ const k=key(r); const a=m.get(k)||{n:0,ben:0,monto:0}; a.n++; a.ben+=+r.beneficiarios||0; a.monto+=+r.monto||0; m.set(k,a);} return m; }
+
+/* ---------- render ---------- */
+function render(){
+  const all=S.rows;
+  fillFilters(all);
+  const rows=all.filter(r=>matches(r));
+  renderKpis(rows); renderMap(all.filter(r=>matches(r,"region"))); renderBars(rows); renderList(rows); renderGallery(rows); renderActive(); renderWho(); renderAdmin();
+}
+function opts(sel, values, label, cur){ const html=`<option value="">${label}</option>`+values.map(v=>`<option${v===cur?" selected":""}>${esc(v)}</option>`).join(""); if(sel.innerHTML!==html) sel.innerHTML=html; }
+function fillFilters(all){
+  const u=k=>[...new Set(all.map(k).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"es"));
+  opts($("#fEmp"),u(r=>r.empresa),"Todas",S.f.empresa); opts($("#fReg"),u(r=>r.region||"Sin región"),"Todas",S.f.region);
+  opts($("#fEst"),ESTADOS,"Todos",S.f.estado); opts($("#fTipo"),u(r=>r.tipo||"Sin tipo"),"Todos",S.f.tipo); opts($("#fAli"),u(r=>r.aliado||"Sin aliado"),"Todos",S.f.aliado);
+  $("#mineWrap").hidden=!myEmpresa();
+}
+function renderActive(){
+  const names={empresa:"Empresa",region:"Región",estado:"Estado",tipo:"Tipo",aliado:"Aliado",q:"Búsqueda"};
+  const el=$("#activeF"); el.innerHTML="";
+  for(const k of Object.keys(names)){ if(!S.f[k]) continue; const b=document.createElement("button"); b.className="chip"; b.textContent=`${names[k]}: ${S.f[k]} ✕`; b.onclick=()=>{S.f[k]=""; if(k==="q") $("#fQ").value=""; render();}; el.appendChild(b); }
+  if(S.f.mine){ const b=document.createElement("button"); b.className="chip"; b.textContent=`Solo ${myEmpresa()} ✕`; b.onclick=()=>{S.f.mine=false;$("#fMine").checked=false;render();}; el.appendChild(b); }
+}
+function renderKpis(rows){
+  const ben=rows.reduce((a,r)=>a+(+r.beneficiarios||0),0), monto=rows.reduce((a,r)=>a+(+r.monto||0),0);
+  const emps=new Set(rows.map(r=>r.empresa).filter(e=>e && e!=="Por confirmar")).size;
+  const regs=new Set(rows.map(r=>r.region).filter(r=>r && r!==NAC)).size;
+  const byE=Object.fromEntries(ESTADOS.map(e=>[e,rows.filter(r=>r.estado===e).length]));
+  const n=rows.length, pc=n?Math.round(byE["Culminado"]/n*100):0;
+  const sinMonto=rows.filter(r=>!(+r.monto)).length, sinBen=rows.filter(r=>!(+r.beneficiarios)).length;
+  const meter=n?`<div class="meter">${ESTADOS.map(e=>`<i style="width:${byE[e]/n*100}%;background:${EST_COLOR[e]}"></i>`).join("")}</div>`:"";
+  $("#kpis").innerHTML=`
+    <div class="kpi lead"><span class="k">Valorizado total</span><span class="v">${fmtShort(monto)}</span><span class="s">${fmtS(monto)}${sinMonto?` · ${sinMonto} sin monto`:""}</span></div>
+    <div class="kpi"><span class="k">Beneficiarios directos</span><span class="v">${fmtN(ben)}</span><span class="s">${sinBen?`${sinBen} iniciativas sin dato`:"personas"}</span></div>
+    <div class="kpi"><span class="k">Iniciativas</span><span class="v">${fmtN(n)}</span><span class="s">${byE["Culminado"]} culminadas · ${byE["En curso"]} en curso · ${byE["Planificado"]} planificadas</span>${meter}</div>
+    <div class="kpi"><span class="k">Avance</span><span class="v">${pc}%</span><span class="s">iniciativas culminadas</span></div>
+    <div class="kpi"><span class="k">Empresas participantes</span><span class="v">${emps}</span><span class="s">${regs} regiones con presencia directa</span></div>`;
+}
+const RAMP=["--heat-1","--heat-2","--heat-3","--heat-4","--heat-5"];
+function heat(v,max){ if(!v) return "var(--heat-0)"; const t=Math.sqrt(v/max); return `var(${RAMP[Math.min(4,Math.floor(t*5-1e-9))]})`; }
+function mval(a){ return !a?0 : S.metric==="monto"?a.monto : S.metric==="ben"?a.ben : a.n; }
+function mfmt(v){ return S.metric==="monto"?fmtShort(v): S.metric==="ben"? fmtN(v)+" benef." : v+(v===1?" iniciativa":" iniciativas"); }
+function renderMap(rows){
+  const A=agg(rows,r=>r.region||"Sin región");
+  const max=Math.max(1,...REGIONES.map(r=>mval(A.get(r))));
+  document.querySelectorAll(".seg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.m===S.metric));
+  let svg=`<svg viewBox="0 0 ${MAP.w} ${MAP.h}" role="img" aria-label="Mapa del Perú por región">`;
+  for(const [name,g] of Object.entries(MAP.r)) svg+=`<path d="${g.d}" data-r="${esc(name)}" fill="${heat(mval(A.get(name)),max)}" class="${S.f.region===name?"sel":""}"><title>${esc(name)}</title></path>`;
+  for(const [name,g] of Object.entries(MAP.r)){ const a=A.get(name); if(a&&a.n) svg+=`<text x="${g.c[0]}" y="${g.c[1]}" text-anchor="middle" dominant-baseline="middle">${a.n}</text>`; }
+  svg+=`</svg><div class="tip" id="tip" hidden></div>`;
+  const box=$("#mapbox"); box.innerHTML=svg; const tip=$("#tip");
+  box.querySelectorAll("path").forEach(p=>{ const r=p.dataset.r;
+    p.addEventListener("click",()=>{ S.f.region=S.f.region===r?"":r; render(); });
+    p.addEventListener("mousemove",ev=>{ const a=A.get(r)||{n:0,ben:0,monto:0}; const bb=box.getBoundingClientRect();
+      tip.innerHTML=`<b>${esc(r)}</b><br>${a.n} iniciativas<br>${fmtS(a.monto)}<br>${fmtN(a.ben)} beneficiarios`;
+      tip.hidden=false; tip.style.left=Math.min(ev.clientX-bb.left+12,bb.width-200)+"px"; tip.style.top=(ev.clientY-bb.top+12)+"px"; });
+    p.addEventListener("mouseleave",()=>tip.hidden=true); });
+  $("#legend").innerHTML=`<span>Sin aportes</span><span class="dot" style="background:var(--heat-0)"></span><span style="margin-left:8px">menos</span><span class="ramp">${RAMP.map(v=>`<i style="background:var(${v})"></i>`).join("")}</span><span>más (máx. ${mfmt(max)})</span><span style="flex-basis:100%">Números sobre el mapa = n.º de iniciativas.</span>`;
+  const n=A.get(NAC)||{n:0,ben:0,monto:0}, sr=A.get("Sin región");
+  const nac=$("#nac"); nac.className="nac"+(S.f.region===NAC?" sel":"");
+  nac.innerHTML=`<span><b>${NAC}</b><br><span class="muted small">Iniciativas sin región única${sr?` · ${sr.n} sin región indicada`:""}</span></span><span class="num" style="text-align:right;font-size:12.5px">${n.n} inic.<br>${fmtS(n.monto)}</span>`;
+  nac.onclick=()=>{ S.f.region=S.f.region===NAC?"":NAC; render(); };
+  const ranked=[...A.entries()].filter(([k])=>k!==NAC).sort((a,b)=>mval(b[1])-mval(a[1])||b[1].n-a[1].n);
+  const rmax=Math.max(1,...ranked.map(([,a])=>mval(a)));
+  $("#rank").innerHTML=ranked.length?ranked.map(([k,a])=>`<button data-r="${esc(k)}" class="${S.f.region===k?"sel":""}"><span>${esc(k)}</span><span class="bar"><i style="width:${mval(a)/rmax*100}%"></i></span><span class="val num">${esc(mfmt(mval(a)))}</span></button>`).join(""):`<div class="empty">Sin datos para los filtros elegidos.</div>`;
+  $("#rank").querySelectorAll("button").forEach(b=>b.onclick=()=>{ S.f.region=S.f.region===b.dataset.r?"":b.dataset.r; render(); });
+}
+function renderBars(rows){
+  const E=[...agg(rows,r=>r.empresa||"—").entries()].sort((a,b)=>b[1].monto-a[1].monto||b[1].n-a[1].n);
+  const max=Math.max(1,...E.map(([,a])=>a.monto));
+  $("#byEmp").innerHTML=E.length?E.map(([k,a])=>`<div class="hb"><span class="lab" title="${esc(k)}">${esc(k)}</span><span class="track"><i style="width:${a.monto/max*100}%;background:var(--sea)"></i></span><span class="val num">${fmtS(a.monto)}<br><span class="muted">${a.n} inic. · ${fmtN(a.ben)} benef.</span></span></div>`).join(""):`<div class="empty">Sin datos.</div>`;
+  const n=rows.length;
+  $("#byEst").innerHTML=`<div class="stack">${ESTADOS.map(e=>{const c=rows.filter(r=>r.estado===e).length; return c?`<i title="${e}: ${c}" style="width:${c/n*100}%;background:${EST_COLOR[e]}"></i>`:"";}).join("")}</div>
+    <div class="keyrow" style="margin-top:8px">${ESTADOS.map(e=>`<span><i class="dot" style="background:${EST_COLOR[e]}"></i>${e} <b class="num">${rows.filter(r=>r.estado===e).length}</b></span>`).join("")}</div>`;
+  const T=[...agg(rows,r=>r.tipo||"Sin tipo").entries()].sort((a,b)=>b[1].n-a[1].n).slice(0,8);
+  const tm=Math.max(1,...T.map(([,a])=>a.n));
+  $("#byTipo").innerHTML=T.map(([k,a])=>`<div class="hb"><span class="lab" title="${esc(k)}">${esc(k)}</span><span class="track"><i style="width:${a.n/tm*100}%;background:var(--lila)"></i></span><span class="val num">${a.n}</span></div>`).join("");
+}
+function renderList(rows){
+  const s=S.sort;
+  rows=[...rows].sort((a,b)=> s==="monto"?(b.monto||0)-(a.monto||0) : s==="ben"?(b.beneficiarios||0)-(a.beneficiarios||0) : s==="emp"?(a.empresa||"").localeCompare(b.empresa||"","es") : String(b.actualizado||"").localeCompare(String(a.actualizado||"")));
+  $("#listCount").textContent=`${rows.length} iniciativa${rows.length===1?"":"s"} con los filtros actuales`;
+  const el=$("#list");
+  if(!rows.length){ el.innerHTML=`<div class="empty">${!S.loaded?"Cargando iniciativas…":S.err?esc(S.err):"No hay iniciativas con estos filtros."}</div>`; return; }
+  el.innerHTML=rows.map(r=>{
+    const ed=canEditRow(r);
+    const fotos=(r.fotos||[]).slice(0,4).map(p=>`<img src="${esc(photoUrl(p))}" alt="Foto de ${esc(r.nombre)}" data-lb="${esc(p)}" data-cap="${esc(r.empresa+" · "+r.nombre)}" loading="lazy" onerror="this.style.visibility='hidden'">`).join("");
+    return `<div class="item" data-open="${esc(r.id)}" tabindex="0" role="button" aria-label="Ver detalle de ${esc(r.nombre)}">
+      <div style="min-width:0"><div class="tag">${esc(r.empresa)}</div><div class="t">${esc(r.nombre||"(sin nombre)")}</div>${r.descripcion?`<div class="d">${esc(r.descripcion)}</div>`:""}${r.comentarios?`<div class="d small"><i>${esc(r.comentarios)}</i></div>`:""}${fotos?`<div class="thumbs">${fotos}</div>`:""}</div>
+      <div class="meta"><span><b>${esc(r.region||"Sin región")}</b>${r.zona?` · ${esc(r.zona)}`:""}</span><span class="muted">Aliado: ${esc(r.aliado||"—")}</span>${r.tipo?`<span class="muted">${esc(r.tipo)}</span>`:""}${r.responsable?`<span class="muted small">Resp.: ${esc(r.responsable)}</span>`:""}</div>
+      <div class="figs num"><span>${r.monto?fmtS(r.monto):'<span class="muted">Sin monto</span>'}</span><span>${r.beneficiarios?fmtN(r.beneficiarios)+" benef.":'<span class="muted">— benef.</span>'}</span>${r.cantidad?`<span class="muted">${esc(r.cantidad)} ${esc(r.unidad||"")}</span>`:(r.unidad?`<span class="muted">${esc(r.unidad)}</span>`:"")}<span class="muted small">${r.fechaInicio?"Inicio "+fmtDate(r.fechaInicio):""}${r.fechaCulminacion?" · Fin "+fmtDate(r.fechaCulminacion):""}</span></div>
+      <div class="acts"><span class="pill ${stCls(r.estado)}">${esc(r.estado||"Planificado")}</span>${ed&&r.estado!=="Culminado"?`<button class="btn ok" data-done="${esc(r.id)}">Marcar culminada</button>`:""}${ed?`<button class="btn" data-edit="${esc(r.id)}">Editar</button>`:""}</div>
+    </div>`;
+  }).join("");
+  el.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>openForm(findRow(b.dataset.edit)));
+  el.querySelectorAll("[data-done]").forEach(b=>b.onclick=async()=>{ b.disabled=true;
+    const { error }=await S.sb.from("iniciativas").update({estado:"Culminado",fecha_culminacion:today()}).eq("id",b.dataset.done);
+    if(error){ b.disabled=false; toast(errMsg(error)); } else { toast("Marcada como culminada"); reload(); } });
+  el.querySelectorAll("[data-lb]").forEach(i=>i.onclick=ev=>{ ev.stopPropagation(); lightbox(i.dataset.lb,i.dataset.cap); });
+  el.querySelectorAll("[data-open]").forEach(it=>{
+    it.onclick=ev=>{ if(ev.target.closest("button")) return; openDetail(it.dataset.open); };
+    it.onkeydown=ev=>{ if((ev.key==="Enter"||ev.key===" ")&&ev.target===it){ ev.preventDefault(); openDetail(it.dataset.open); } };
+  });
+}
+function renderGallery(rows){
+  const ph=[]; for(const r of rows) for(const p of (r.fotos||[])) ph.push({p,r});
+  $("#galCount").textContent=ph.length?`${ph.length} foto${ph.length===1?"":"s"}`:"";
+  $("#gallery").innerHTML=ph.length?ph.map(({p,r})=>`<figure data-lb="${esc(p)}" data-cap="${esc(r.empresa+" · "+r.nombre)}"><img src="${esc(photoUrl(p))}" alt="Foto de ${esc(r.nombre)}" loading="lazy" onerror="this.style.visibility='hidden'"><figcaption><b>${esc(r.empresa)}</b> · ${esc(r.nombre)}<br>${esc(r.region||"")}</figcaption></figure>`).join("")
+    :`<div class="empty" style="grid-column:1/-1">Aún no hay fotos para estos filtros. Las empresas pueden adjuntarlas al editar cada iniciativa.</div>`;
+  $("#gallery").querySelectorAll("[data-lb]").forEach(f=>f.onclick=()=>lightbox(f.dataset.lb,f.dataset.cap));
+}
+function lightbox(p,cap){ const d=$("#lb"); d.innerHTML=`<img src="${esc(photoUrl(p))}" alt=""><p>${esc(cap)} — toca fuera para cerrar</p>`; d.showModal(); d.onclick=()=>d.close(); }
+const findRow = id => S.rows.find(r=>r.id===id);
+
+function openDetail(id){
+  const r=findRow(id); if(!r) return;
+  const ed=canEditRow(r), f=r.fotos||[];
+  const cell=(k,v)=>v?`<div><span>${k}</span>${esc(v)}</div>`:"";
+  const d=$("#det");
+  d.innerHTML=`<div class="mod">
+    <div class="mod-h"><div style="min-width:0"><div class="tag">${esc(r.empresa)}</div><h2>${esc(r.nombre||"(sin nombre)")}</h2></div><button type="button" class="btn ghost" id="dx" aria-label="Cerrar">✕</button></div>
+    <div class="det-body">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><span class="pill ${stCls(r.estado)}">${esc(r.estado||"Planificado")}</span>${r.tipo?`<span class="chip">${esc(r.tipo)}</span>`:""}</div>
+      ${r.descripcion?`<p style="margin:0">${esc(r.descripcion)}</p>`:""}
+      <div class="det-grid">${cell("Valorizado",r.monto?fmtS(r.monto):"")}${cell("Beneficiarios directos",r.beneficiarios?fmtN(r.beneficiarios):"")}${cell("Cantidad donada",[r.cantidad,r.unidad].filter(Boolean).join(" "))}${cell("Región",r.region)}${cell("Zona",r.zona)}${cell("Aliado",r.aliado)}${cell("Inicio",fmtDate(r.fechaInicio))}${cell("Culminación",fmtDate(r.fechaCulminacion))}${cell("Responsable",r.responsable)}</div>
+      ${r.comentarios?`<div><div class="tag">Comentarios</div><i>${esc(r.comentarios)}</i></div>`:""}
+      <div><h3 style="margin-bottom:8px">Fotos${f.length?` (${f.length})`:""}</h3>
+        ${f.length?`<div class="det-photos">${f.map((p,i)=>`<img src="${esc(photoUrl(p))}" alt="Foto ${i+1} de ${esc(r.nombre)}" data-lb="${esc(p)}" onerror="this.style.visibility='hidden'">`).join("")}</div>`:`<p class="muted" style="margin:0">Esta iniciativa aún no tiene fotos.${ed?" Puedes agregarlas con “Editar”.":""}</p>`}</div>
+    </div>
+    <div class="mod-f"><span></span><span style="display:flex;gap:8px">${ed?`<button type="button" class="btn" id="dedit">Editar</button>`:""}<button type="button" class="btn primary" id="dclose">Cerrar</button></span></div></div>`;
+  d.querySelector("#dx").onclick=d.querySelector("#dclose").onclick=()=>d.close();
+  if(ed) d.querySelector("#dedit").onclick=()=>{ d.close(); openForm(r); };
+  d.querySelectorAll("[data-lb]").forEach(i=>i.onclick=()=>lightbox(i.dataset.lb,r.empresa+" · "+r.nombre));
+  d.onclick=ev=>{ if(ev.target===d) d.close(); };
+  d.showModal();
+}
+
+/* ---------- identidad y accesos ---------- */
+function renderWho(){
+  const w=$("#who"), me=myEmpresa();
+  let label="Vista pública", cls="";
+  if(S.demo){ label="Modo demostración"; cls="role-pend"; }
+  else if(isAdmin()){ label="Coordinación (edita todo)"; cls="role-owner"; }
+  else if(me){ label=me+" · edita sus iniciativas"; cls="role-member"; }
+  else if(S.session && S.perfil?.empresa_solicitada){ label="Acceso pendiente: "+S.perfil.empresa_solicitada; cls="role-pend"; }
+  else if(S.session){ label=S.session.user.email; }
+  w.className="chip "+cls; w.textContent=label;
+  $("#btnNew").hidden=!(isAdmin()||me);
+  $("#btnLogin").hidden=S.demo||!!S.session;
+  $("#btnLogout").hidden=!S.session;
+  renderBanner();
+}
+function renderBanner(){
+  const b=$("#banner");
+  if(S.demo){ b.hidden=false; b.className="banner warn"; b.innerHTML=`<span><b>Modo demostración.</b> Falta conectar la base de datos: completa <code>config.js</code> con la URL y la clave pública de Supabase (ver README). Mientras tanto se muestran los datos del Excel, sin edición.</span>`; return; }
+  if(!S.session || isAdmin() || myEmpresa() || !S.perfil){ b.hidden=true; return; }
+  b.hidden=false;
+  const pend=S.perfil.empresa_solicitada;
+  if(pend && !S._reqEdit){ b.className="banner warn"; b.innerHTML=`<span>Solicitaste reportar como <b>${esc(pend)}</b>. La coordinación debe aprobar tu acceso; luego podrás crear y editar las iniciativas de tu empresa.</span><button class="btn" id="reqChange">Cambiar empresa</button>`; $("#reqChange").onclick=()=>{ S._reqEdit=true; renderBanner(); }; return; }
+  b.className="banner";
+  b.innerHTML=`<span style="min-width:0;flex:1 1 280px"><b>¿Reportas por una empresa del grupo?</b> Elige tu empresa y solicita acceso. Solo podrás editar las iniciativas de esa empresa.</span>
+    <span style="display:flex;gap:8px;flex-wrap:wrap"><select id="reqEmp" class="btn" style="font-weight:500">${EMPRESAS.map(e=>`<option${e===pend?" selected":""}>${esc(e)}</option>`).join("")}</select><button class="btn primary" id="reqGo">Solicitar acceso</button></span>`;
+  $("#reqGo").onclick=async()=>{ $("#reqGo").disabled=true;
+    const { error }=await S.sb.from("perfiles").update({empresa_solicitada:$("#reqEmp").value}).eq("id",S.session.user.id);
+    if(error){ $("#reqGo").disabled=false; toast(errMsg(error)); } else { S._reqEdit=false; toast("Solicitud enviada a coordinación"); reload(); } };
+}
+function renderAdmin(){
+  const p=$("#adminPanel");
+  if(!isAdmin()){ p.hidden=true; return; }
+  p.hidden=false; p.className="panel";
+  const pend=S.perfiles.filter(u=>u.empresa_solicitada && u.empresa!==u.empresa_solicitada && !u.es_admin);
+  const mem=S.perfiles.filter(u=>u.empresa && !u.es_admin);
+  const sel=(id,v)=>`<select data-u="${esc(id)}" class="btn" style="font-weight:500">${EMPRESAS.map(e=>`<option${e===v?" selected":""}>${esc(e)}</option>`).join("")}</select>`;
+  p.innerHTML=`<div class="panel-h"><div><h2>Accesos de empresas</h2><span class="muted small">Solo coordinación ve este panel. Cada persona aprobada puede crear y editar las iniciativas de su empresa.</span></div><button class="btn ghost" id="admToggle">${S._admOpen?"Ocultar":"Mostrar"} (${pend.length} pendiente${pend.length===1?"":"s"})</button></div>
+  <div ${S._admOpen?"":"hidden"} class="scroll-x">
+    ${pend.length?`<h3>Solicitudes pendientes</h3><table class="mem"><tr><th>Correo</th><th>Empresa solicitada</th><th></th></tr>${pend.map(u=>`<tr><td>${esc(u.email)}</td><td>${sel(u.id,u.empresa_solicitada)}</td><td><button class="btn primary" data-ok="${esc(u.id)}">Aprobar</button></td></tr>`).join("")}</table>`:`<p class="muted">No hay solicitudes pendientes. Comparte el enlace con cada responsable y pídeles que ingresen con su correo y soliciten acceso.</p>`}
+    ${mem.length?`<h3 style="margin-top:12px">Personas aprobadas</h3><table class="mem"><tr><th>Correo</th><th>Empresa</th><th></th></tr>${mem.map(u=>`<tr><td>${esc(u.email)}</td><td>${esc(u.empresa)}</td><td><button class="btn danger" data-rev="${esc(u.id)}">Quitar acceso</button></td></tr>`).join("")}</table>`:""}
+  </div>`;
+  $("#admToggle").onclick=()=>{ S._admOpen=!S._admOpen; renderAdmin(); };
+  p.querySelectorAll("[data-ok]").forEach(b=>b.onclick=async()=>{ const id=b.dataset.ok; const emp=p.querySelector(`select[data-u="${CSS.escape(id)}"]`).value; b.disabled=true;
+    const { error }=await S.sb.from("perfiles").update({empresa:emp}).eq("id",id); if(error){ b.disabled=false; toast(errMsg(error)); } else { toast("Acceso aprobado"); reload(); } });
+  p.querySelectorAll("[data-rev]").forEach(b=>b.onclick=async()=>{ if(b.dataset.c!=="1"){ b.dataset.c="1"; b.textContent="Confirmar"; return; } b.disabled=true;
+    const { error }=await S.sb.from("perfiles").update({empresa:null}).eq("id",b.dataset.rev); if(error){ b.disabled=false; toast(errMsg(error)); } else { toast("Acceso retirado"); reload(); } });
+}
+function openAuth(){
+  const d=$("#auth");
+  d.innerHTML=`<form class="mod" id="authF"><div class="mod-h"><h2>Ingresar</h2><button type="button" class="btn ghost" id="ax" aria-label="Cerrar">✕</button></div>
+    <div class="authbox"><p class="muted" style="margin:0">Escribe tu correo. Te enviaremos un enlace para ingresar, sin contraseña. Ábrelo en este mismo navegador.</p>
+    <div class="field"><label for="aEmail">Correo</label><input id="aEmail" type="email" required autocomplete="email" placeholder="nombre@empresa.com.pe"></div>
+    <div id="aMsg"></div></div>
+    <div class="mod-f"><span></span><button type="submit" class="btn primary" id="aGo">Enviar enlace</button></div></form>`;
+  d.querySelector("#ax").onclick=()=>d.close();
+  d.querySelector("#authF").onsubmit=async ev=>{ ev.preventDefault(); const email=$("#aEmail").value.trim(); if(!email) return; $("#aGo").disabled=true;
+    const { error }=await S.sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: location.origin+location.pathname } });
+    $("#aMsg").innerHTML = error? `<div class="err">No se pudo enviar el enlace: ${esc(error.message)}</div>` : `<div class="ok-msg">Listo. Revisa tu correo (y la carpeta de spam) y abre el enlace.</div>`;
+    if(error) $("#aGo").disabled=false; };
+  d.showModal();
+}
+
+/* ---------- escritura ---------- */
+function errMsg(e){ const m=String(e?.message||e||""); if(/row-level security|permission|42501/i.test(m)) return "No tienes permiso para guardar este cambio."; if(/size|too large|413/i.test(m)) return "La foto pesa demasiado (máx. 10 MB)."; if(/mime|type/i.test(m)) return "Formato no admitido. Usa JPG, PNG o WebP."; return "No se pudo guardar. Inténtalo de nuevo."; }
+const slug = s => String(s||"otro").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"otro";
+let F={fotos:[]};
+function openForm(r){
+  const me=myEmpresa(), isNew=!r;
+  const v=r?{...r}:{estado:"Planificado",empresa:isAdmin()?"":me,fotos:[]};
+  F={fotos:[...(v.fotos||[])], row:r};
+  const all=S.rows;
+  const dl=(id,vals)=>`<datalist id="${id}">${[...new Set(vals.filter(Boolean))].sort().map(x=>`<option value="${esc(x)}">`).join("")}</datalist>`;
+  const empLocked=!isAdmin();
+  const fld=(id,label,inner,full)=>`<div class="field${full?" full":""}"><label for="${id}">${label}</label>${inner}</div>`;
+  const tipos=[...new Set(TIPOS.concat(all.map(x=>x.tipo).filter(t=>t&&!TIPOS.includes(t)).sort()))]; const known=!v.tipo||tipos.includes(v.tipo);
+  $("#frm").innerHTML=`
+    <div class="mod-h"><h2>${isNew?"Nueva iniciativa":"Editar iniciativa"}</h2><button type="button" class="btn ghost" id="fx" aria-label="Cerrar">✕</button></div>
+    <div class="mod-b">
+      ${fld("i_emp","Empresa",empLocked?`<input id="i_emp" value="${esc(v.empresa||me||"")}" disabled>`:`<select id="i_emp" required><option value="">Elige…</option>${EMPRESAS.concat(v.empresa&&!EMPRESAS.includes(v.empresa)?[v.empresa]:[]).map(e=>`<option${e===v.empresa?" selected":""}>${esc(e)}</option>`).join("")}</select>`)}
+      ${fld("i_est","Estado",`<select id="i_est">${ESTADOS.map(e=>`<option${e===v.estado?" selected":""}>${e}</option>`).join("")}</select>`)}
+      ${fld("i_nom","Nombre de la iniciativa *",`<input id="i_nom" required value="${esc(v.nombre)}">`,true)}
+      ${fld("i_desc","Descripción breve",`<textarea id="i_desc">${esc(v.descripcion)}</textarea>`,true)}
+      ${fld("i_ali","Aliado / socio",`<input id="i_ali" list="dl_ali" value="${esc(v.aliado)}" placeholder="o “Iniciativa propia”">`+dl("dl_ali",all.map(x=>x.aliado)))}
+      ${fld("i_tipo","Tipo de apoyo",`<select id="i_tipo"><option value="">Elige…</option>${tipos.map(t=>`<option${t===v.tipo?" selected":""}>${esc(t)}</option>`).join("")}<option value="__otro"${known?"":" selected"}>Otro (escribir nueva categoría)…</option></select><input id="i_tipo_otro" placeholder="Nombre de la nueva categoría" value="${known?"":esc(v.tipo)}" ${known?"hidden":""} style="margin-top:6px">`)}
+      ${fld("i_reg","Región",`<select id="i_reg"><option value="">Elige…</option>${REGIONES.concat([NAC]).map(e=>`<option${e===v.region?" selected":""}>${e}</option>`).join("")}</select>`)}
+      ${fld("i_zona","Zona específica (provincia / distrito)",`<input id="i_zona" value="${esc(v.zona)}" placeholder="Piura – Sechura – Vice">`)}
+      ${fld("i_ben","Beneficiarios directos (n.º)",`<input id="i_ben" type="number" min="0" step="1" inputmode="numeric" value="${v.beneficiarios??""}">`)}
+      ${fld("i_monto","Monto invertido / valorizado (S/)",`<input id="i_monto" type="number" min="0" step="0.01" inputmode="decimal" value="${v.monto??""}">`)}
+      ${fld("i_cant","Cantidad donada",`<input id="i_cant" value="${esc(v.cantidad)}" placeholder="50">`)}
+      ${fld("i_uni","Unidad de medida",`<input id="i_uni" value="${esc(v.unidad)}" placeholder="canastas familiares">`)}
+      ${fld("i_fi","Fecha de inicio",`<input id="i_fi" type="date" value="${esc(v.fechaInicio)}">`)}
+      ${fld("i_ff","Fecha de culminación",`<input id="i_ff" type="date" value="${esc(v.fechaCulminacion)}">`)}
+      ${fld("i_resp","Responsable / contacto",`<input id="i_resp" value="${esc(v.responsable)}">`)}
+      ${fld("i_com","Comentarios",`<input id="i_com" value="${esc(v.comentarios)}">`)}
+      <div class="field full"><label>Fotos</label><div class="photos" id="phs"></div><span class="muted small" id="phNote"></span></div>
+      <div class="err full" id="ferr" hidden></div>
+    </div>
+    <div class="mod-f"><span>${!isNew?`<button type="button" class="btn danger" id="fdel">Eliminar</button>`:""}</span><span style="display:flex;gap:8px"><button type="button" class="btn" id="fcan">Cancelar</button><button type="submit" class="btn primary" id="fsave">Guardar</button></span></div>`;
+  renderPhotos(empLocked?me:(v.empresa||""));
+  $("#fx").onclick=$("#fcan").onclick=()=>$("#dlg").close();
+  $("#i_tipo").onchange=e=>{ const o=$("#i_tipo_otro"); o.hidden=e.target.value!=="__otro"; if(!o.hidden) o.focus(); };
+  $("#i_est").onchange=e=>{ if(e.target.value==="Culminado" && !$("#i_ff").value) $("#i_ff").value=today(); };
+  if($("#fdel")) $("#fdel").onclick=async e=>{ const b=e.target; if(b.dataset.c!=="1"){ b.dataset.c="1"; b.textContent="¿Eliminar? Confirmar"; return; } b.disabled=true;
+    const { error }=await S.sb.from("iniciativas").delete().eq("id",r.id); if(error){ b.disabled=false; showErr(errMsg(error)); } else { $("#dlg").close(); toast("Iniciativa eliminada"); reload(); } };
+  $("#frm").onsubmit=async ev=>{
+    ev.preventDefault();
+    const num=id=>{ const x=$(id).value.trim(); return x===""?null:Math.max(0,+x); };
+    const data={ nombre:$("#i_nom").value.trim(), descripcion:$("#i_desc").value.trim(), aliado:$("#i_ali").value.trim(),
+      tipo:($("#i_tipo").value==="__otro"?$("#i_tipo_otro").value.trim():$("#i_tipo").value),
+      region:$("#i_reg").value, zona:$("#i_zona").value.trim(), beneficiarios:num("#i_ben"), monto:num("#i_monto"), cantidad:$("#i_cant").value.trim(), unidad:$("#i_uni").value.trim(),
+      fechaInicio:$("#i_fi").value, fechaCulminacion:$("#i_ff").value, estado:$("#i_est").value, responsable:$("#i_resp").value.trim(), comentarios:$("#i_com").value.trim(), fotos:F.fotos,
+      empresa: empLocked ? (v.empresa||me) : $("#i_emp").value };
+    if(!data.nombre) return showErr("Escribe el nombre de la iniciativa.");
+    if(!data.empresa) return showErr("Elige la empresa.");
+    if($("#i_tipo").value==="__otro" && !data.tipo) return showErr("Escribe el nombre de la nueva categoría de apoyo.");
+    if(data.estado==="Culminado" && !data.fechaCulminacion) data.fechaCulminacion=today();
+    $("#fsave").disabled=true;
+    const q = r ? S.sb.from("iniciativas").update(toDb(data)).eq("id",r.id) : S.sb.from("iniciativas").insert(toDb(data));
+    const { error }=await q;
+    if(error){ $("#fsave").disabled=false; showErr(errMsg(error)); return; }
+    $("#dlg").close(); toast(isNew?"Iniciativa registrada":"Cambios guardados"); reload();
+  };
+  $("#dlg").showModal();
+}
+function showErr(m){ const e=$("#ferr"); e.textContent=m; e.hidden=false; }
+function renderPhotos(empresa){
+  const box=$("#phs"); if(!box) return;
+  box.innerHTML=F.fotos.map((p,i)=>`<span class="ph"><img src="${esc(photoUrl(p))}" alt="Foto ${i+1}"><button type="button" data-rm="${i}" aria-label="Quitar foto">✕</button></span>`).join("")
+    +(F.fotos.length<8?`<label class="drop" for="phIn">+ Agregar foto</label><input id="phIn" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden>`:"");
+  $("#phNote").textContent="JPG, PNG o WebP. Se reducen automáticamente. Máx. 8 por iniciativa. Los cambios se guardan al pulsar Guardar.";
+  box.querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{ F.fotos.splice(+b.dataset.rm,1); renderPhotos(empresa); });
+  const inp=$("#phIn"); if(inp) inp.onchange=async()=>{
+    const emp=(($("#i_emp")&&$("#i_emp").value)||empresa);
+    const files=[...inp.files].slice(0,8-F.fotos.length); $("#phNote").textContent="Subiendo…";
+    for(const f of files){ const blob=await shrink(f); const path=`${slug(emp)}/${Date.now().toString(36)}-${Math.random().toString(36).slice(2,8)}.jpg`;
+      const { error }=await S.sb.storage.from("fotos").upload(path,blob,{contentType:blob.type||"image/jpeg",upsert:false});
+      if(error) toast(errMsg(error)); else F.fotos.push(path); }
+    renderPhotos(empresa);
+  };
+}
+async function shrink(file){
+  try{ const bmp=await createImageBitmap(file); const sc=Math.min(1,1600/Math.max(bmp.width,bmp.height));
+    const c=document.createElement("canvas"); c.width=Math.round(bmp.width*sc); c.height=Math.round(bmp.height*sc); c.getContext("2d").drawImage(bmp,0,0,c.width,c.height);
+    const b=await new Promise(res=>c.toBlob(res,"image/jpeg",.82)); return b||file; }catch(e){ return file; }
+}
+function csv(){
+  const rows=S.rows.filter(r=>matches(r));
+  const cols=[["empresa","Empresa"],["nombre","Iniciativa"],["descripcion","Descripción"],["aliado","Aliado"],["region","Región"],["zona","Zona"],["tipo","Tipo de apoyo"],["beneficiarios","Beneficiarios"],["monto","Monto (S/)"],["cantidad","Cantidad"],["unidad","Unidad"],["fechaInicio","Inicio"],["fechaCulminacion","Culminación"],["estado","Estado"],["responsable","Responsable"],["comentarios","Comentarios"]];
+  const q=v=>{ v=v==null?"":String(v); return /[",\n;]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; };
+  const txt="﻿"+cols.map(c=>c[1]).join(",")+"\n"+rows.map(r=>cols.map(c=>q(r[c[0]])).join(",")).join("\n");
+  const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([txt],{type:"text/csv"})); a.download=`respuesta-solidaria-fen-${today()}.csv`; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },500);
+}
+
+/* ---------- conexión ---------- */
+const bind=(id,k)=>$(id).onchange=e=>{ S.f[k]=e.target.value; render(); };
+bind("#fEmp","empresa"); bind("#fReg","region"); bind("#fEst","estado"); bind("#fTipo","tipo"); bind("#fAli","aliado");
+let qT; $("#fQ").oninput=e=>{ clearTimeout(qT); qT=setTimeout(()=>{ S.f.q=e.target.value.trim(); render(); },200); };
+$("#fMine").onchange=e=>{ S.f.mine=e.target.checked; render(); };
+$("#btnClear").onclick=()=>{ S.f={empresa:"",region:"",estado:"",tipo:"",aliado:"",q:"",mine:false}; $("#fQ").value=""; $("#fMine").checked=false; render(); };
+document.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{ S.metric=b.dataset.m; saveUI(); render(); });
+$("#sortBy").value=S.sort; $("#sortBy").onchange=e=>{ S.sort=e.target.value; saveUI(); render(); };
+$("#btnNew").onclick=()=>openForm(null);
+$("#btnCsv").onclick=csv;
+$("#btnLogin").onclick=openAuth;
+$("#btnLogout").onclick=async()=>{ await S.sb.auth.signOut(); };
+$("#btnTheme").onclick=()=>{ S.theme=S.theme==="dark"?"light":"dark"; applyTheme(); saveUI(); };
+applyTheme(); render();
+
+(async function boot(){
+  if(!CFG.supabaseUrl || !CFG.supabaseAnonKey || !window.supabase){ S.demo=true; return loadRows(); }
+  S.sb=window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey);
+  const { data:{ session } }=await S.sb.auth.getSession(); S.session=session;
+  await loadPerfil(); await loadRows();
+  S.sb.auth.onAuthStateChange((ev,sess)=>{ const changed=(sess?.user?.id||null)!==(S.session?.user?.id||null); S.session=sess; if(changed){ if(location.hash.includes("access_token")) history.replaceState(null,"",location.pathname); reload(); } });
+  S.sb.channel("fen").on("postgres_changes",{event:"*",schema:"public",table:"iniciativas"},reload).on("postgres_changes",{event:"*",schema:"public",table:"perfiles"},reload).subscribe();
+})();
+</script>
+</body>
+</html>
